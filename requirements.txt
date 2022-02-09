@@ -4,3 +4,4 @@ pip==21.1.2
 setuptools==57.0.0
 sqlparse==0.4.2
 wheel==0.36.2
+django_heroku~=0.3.1

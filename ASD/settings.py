@@ -13,6 +13,8 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+import django_heroku
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -73,26 +75,12 @@ WSGI_APPLICATION = 'ASD.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-IN_DOCKER = os.environ.get("IN_DOCKER", 0)
-
-if IN_DOCKER:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'postgres',
-            'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': 'db',
-            'PORT': 5432,
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 # Password validation
@@ -135,3 +123,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+django_heroku.settings(locals())
+
