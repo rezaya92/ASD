@@ -3,12 +3,11 @@ from django.shortcuts import  render, redirect
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate,logout
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm #add this
-
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def homePageView(request):
-    return render(request=request, template_name='libcloud/base.html')
+    return render(request=request, template_name='libcloud/intro.html')
 
 
 def register_request(request):
