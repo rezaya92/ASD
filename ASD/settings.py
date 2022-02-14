@@ -102,7 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-c
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
