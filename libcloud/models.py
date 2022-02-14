@@ -19,11 +19,19 @@ class Content(Model):
     type = models.IntegerField(choices=ContentType.choices)
     file = models.FileField()
 
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     value = models.CharField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Attachment(Model):
@@ -34,3 +42,7 @@ class Attachment(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     type = models.IntegerField(choices=AttachmentType.choices)
     file = models.FileField()
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
