@@ -13,8 +13,6 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-import django_heroku
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -39,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'libcloud.apps.LibcloudConfig',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -123,5 +123,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-django_heroku.settings(locals())
 
+if '/app' in os.environ['HOME']:
+    import django_heroku
+    django_heroku.settings(locals())

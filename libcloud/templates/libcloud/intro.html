@@ -1,0 +1,12 @@
+{% extends 'libcloud/base.html' %}
+{% load static %}
+{% block content %}
+    {% if not user.is_authenticated %}
+    <div class="bg-image d-flex justify-content-center align-items-center" style="height: 100vh">
+        <div class="mx-auto pagination-centered text-center"><h1 class="text-white">LibCloud</h1>
+            <h5 >a cloud storage blah blah blad<br/></h5>
+            <input class="btn btn-primary" type="button" onclick="location.href='/login';" value="create an account" />
+        </div>
+    </div>
+    {% endif %}
+ {% endblock %}
