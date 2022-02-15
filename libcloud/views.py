@@ -56,6 +56,9 @@ def login_request(request):
 def file_page(request, filename):
     if request.method == "GET":
         contents = Content.objects.filter(file=filename).all()
+        # for c in contents:
+        #     print(c.file.name)
+        # print(len(contents))
         content = None
         if contents.count() == 1:
             content = contents[0]
@@ -71,6 +74,8 @@ def file_page(request, filename):
         else:
             raise Exception
         return render(request, 'libcloud/file_page.html', {'file': content})
+    else:
+        return redirect('libcloud:file_page', filename)
 
 
 def download_file(request, user_prefix, filename):
@@ -86,6 +91,8 @@ def download_file(request, user_prefix, filename):
             response = HttpResponse(f.read(), content_type=mime_type)
             response['Content-Disposition'] = "attachment; filename=%s" % filename
             return response
+    else:
+        return redirect('libcloud:download_file', user_prefix, filename)
 
 
 @login_required
