@@ -10,37 +10,53 @@
 
 </head>
 <body style="background-color: lightskyblue;height: 100vh;opacity: 0.8">
-<nav class="navbar navbar-expand-sm fixed-top navbar-light">
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar1">
-            <span class="navbar-toggler-icon"></span>
-  </button>
-  <a class="navbar-brand" href="#"> </a>
-  <div class="collapse navbar-collapse" id="navbarText">
-    <ul class="navbar-nav mr-auto">
-      {% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Files</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Upload file</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Libaries</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Welcome, {{user.username}}</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            {% else %}
 
-      <li class="nav-item">
-        <a class="nav-link" href="/logout">Logout</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Welcome, {{user.username}}</a>
-      </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login">Login</a>
+            </li>
 
-      {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="/register">register</a>
+            </li>
 
-      <li class="nav-item">
-        <a class="nav-link" href="/login">Login</a>
-      </li>
+            {% endif %}
+      </ul>
 
-      <li class="nav-item">
-        <a class="nav-link" href="/register">register</a>
-      </li>
-
-      {% endif %}
-
-    </ul>
+    </div>
   </div>
 </nav>
+
 <div class="text-center">
 {% if messages %}
     <div class="messages alert alert-primary" role="alert">
