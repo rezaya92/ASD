@@ -1,7 +1,18 @@
-from django.http import HttpResponse
-from django.shortcuts import  render, redirect
-from .forms import NewUserForm
-from django.contrib.auth import login, authenticate,logout
+import json
+import mimetypes
+import os
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
+
+from ASD import settings
+from libcloud.models import Content, Attachment
+from .forms import NewUserForm, ContentForm
+from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -41,7 +52,25 @@ def login_request(request):
     form = AuthenticationForm()
     return render(request=request, template_name="libcloud/login.html", context={"login_form": form})
 
+
+def file_page(request, name):
+    if request.method == "GET":
+        contents = Content.objects.filter(file=name).all()
+        content = None
+        if contents.count() == 1:
+            content = contents[0]
+        elif contents.count() == 0:
+            content = Content.objects.create(creator=request.user, type=Content.ContentType.Book,
+                                             file=SimpleUploadedFile(name, b"Test File"))
+            content.contentfeature_set.create(name="feature1", value="value1")
+            content.attachment_set.create(type=Attachment.AttachmentType.Subtitle,
+                                          file=SimpleUploadedFile("attachment1.txt", b"Test attachment"))
+        else:
+            raise Exception
+        return render(request, 'libcloud/file_page.html', {'file': content})
+
+
 def logout_request(request):
-	logout(request)
-	messages.info(request, "You have successfully logged out.")
-	return redirect("/")
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect("/")
