@@ -70,6 +70,22 @@ def file_page(request, name):
         return render(request, 'libcloud/file_page.html', {'file': content})
 
 
+def download_file(request, filename):
+    if request.method == "GET":
+        file_path = os.path.join(settings.MEDIA_ROOT, filename)
+
+        if not os.path.exists(file_path):
+            messages.error(request, f"{filename} doesn't exists.")
+            return redirect("/")
+
+        mime_type, _ = mimetypes.guess_type(file_path)
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type=mime_type)
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            return response
+
+
+
 def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
