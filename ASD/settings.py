@@ -128,5 +128,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 django_heroku.settings(locals(), test_runner=False)
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://libcloud.herokuapp.com'
+    'https://libcloud.herokuapp.com'
 ]
