@@ -30,6 +30,9 @@ class Content(Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
+    def filename(self):
+        return os.path.basename(self.file.name)
+
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
@@ -57,3 +60,6 @@ class Attachment(Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def filename(self):
+        return os.path.basename(self.file.name)

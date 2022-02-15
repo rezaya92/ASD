@@ -3,7 +3,7 @@
 {% block content %}
     <p class="text-center">{{ file.creator }}</p>
     <p class="text-center">{{ file.get_type_display }}</p>
-    <p class="text-center">{{ file.file.name }}</p>
+    <p class="text-center">{{ file.filename }}</p>
     <p class="text-center"> <a href={{ file.file.url }}>{{ file.file.url }}</a> </p>
     {% for feature in file.contentfeature_set.all %}
         <p class="text-center">{{ feature.name }} + {{ feature.value }}</p>
@@ -12,7 +12,7 @@
     <p class="text-center">attachments:</p>
     {% for attachment in file.attachment_set.all %}
         <p class="text-center">{{ attachment.get_type_display }}</p>
-        <p class="text-center">{{ attachment.file.name }}</p>
+        <p class="text-center">{{ attachment.filename }}</p>
         <p class="text-center"> <a href={{ attachment.file.url }}>{{ attachment.file.url }}</a> </p>
         <p class="text-center">---</p>
     {% endfor %}
