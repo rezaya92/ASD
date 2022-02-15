@@ -85,6 +85,10 @@ def download_file(request, filename):
             return response
 
 
+@login_required
+def upload_file(request):
+    pass
+
 
 def logout_request(request):
     logout(request)
