@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect
 
 from ASD import settings
 from libcloud.models import Content, Attachment
-from .forms import NewUserForm, ContentForm
+from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
