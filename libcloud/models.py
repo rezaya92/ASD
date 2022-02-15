@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Model
@@ -5,6 +7,11 @@ from django.db.models import Model
 
 def get_sentinel_user():
     return User.objects.get_or_create(username='deleted')[0]
+
+
+def get_content_upload_path(instance, filename):
+    return os.path.join(
+        "user_%s" % instance.creator.username, filename)
 
 
 class Content(Model):
@@ -17,7 +24,7 @@ class Content(Model):
 
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     type = models.IntegerField(choices=ContentType.choices)
-    file = models.FileField()
+    file = models.FileField(upload_to=get_content_upload_path)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -34,6 +41,10 @@ class ContentFeature(Model):
         super().save(*args, **kwargs)
 
 
+def get_attachment_upload_path(instance, filename):
+    return "_".join(["%s" % os.path.splitext(instance.content.file.name)[0], filename])
+
+
 class Attachment(Model):
     class AttachmentType(models.IntegerChoices):
         Subtitle = 1
@@ -41,7 +52,7 @@ class Attachment(Model):
 
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     type = models.IntegerField(choices=AttachmentType.choices)
-    file = models.FileField()
+    file = models.FileField(upload_to=get_attachment_upload_path)
 
     def save(self, *args, **kwargs):
         self.full_clean()
