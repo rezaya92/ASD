@@ -70,9 +70,9 @@ def file_page(request, name):
         return render(request, 'libcloud/file_page.html', {'file': content})
 
 
-def download_file(request, filename):
+def download_file(request, user_prefix, filename):
     if request.method == "GET":
-        file_path = os.path.join(settings.MEDIA_ROOT, filename)
+        file_path = os.path.join(settings.MEDIA_ROOT, user_prefix, filename)
 
         if not os.path.exists(file_path):
             messages.error(request, f"{filename} doesn't exists.")

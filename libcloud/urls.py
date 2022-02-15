@@ -13,6 +13,6 @@ urlpatterns = [
     path("logout", views.logout_request, name="logout"),
     path("file_page/<str:name>", views.file_page, name="file_page"),
     path("upload_file", views.upload_file, name="upload_file"),
-    path(settings.MEDIA_URL + "<str:filename>", views.download_file, name="download_file"),
+    path(settings.MEDIA_URL + "<str:user_prefix>/<str:filename>", views.download_file, name="download_file"),
     # path("upload_success", views.upload_success, name="upload_success"),
 ]
