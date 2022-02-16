@@ -67,13 +67,11 @@ class Attachment(Model):
         super().save(*args, **kwargs)
 
     def clean(self):
-        errors = {}
         if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
                 Attachment.content_to_attachment_map[self.content.get_type_display()]:
-            errors["mismatch types"] = f"{self.content.get_type_display()} " \
-                                       f"can not have {self.get_type_display()} attachment."
-        if errors:
-            raise ValidationError(errors)
+            raise ValidationError(f"{self.content.get_type_display()} " +
+                                  f"can not have {self.get_type_display()} attachment.")
+
 
     def filename(self):
         return os.path.basename(self.file.name)
