@@ -8,9 +8,9 @@ app_name = "homepage"
 
 urlpatterns = [
     path("", views.homePageView, name="homepage"),
-    path("register", views.register_request, name="register"),
-    path("login", views.login_request, name="login"),
-    path("logout", views.logout_request, name="logout"),
+    path("register/", views.register_request, name="register"),
+    path("login/", views.login_request, name="login"),
+    path("logout/", views.logout_request, name="logout"),
     path("file_page/<path:filename>", views.file_page, name="file_page"),
     path("upload_file", views.upload_file, name="upload_file"),
     path(settings.MEDIA_URL + "<str:user_prefix>/<str:filename>", views.download_file, name="download_file"),
