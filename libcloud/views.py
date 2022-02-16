@@ -70,16 +70,19 @@ def file_page(request, filename):
         if contents.count() == 1:
             content = contents[0]
         elif contents.count() == 0:
-            if len(filename.split("/")) > 1:
-                filename = filename.split("/")[-1]
-            content = Content.objects.create(creator=request.user, type=Content.ContentType.Text,
-                                             file=SimpleUploadedFile(filename, b"Test File"))
-            content.contentfeature_set.create(name="feature1", value="value1")
-            content.attachment_set.create(type=Attachment.AttachmentType.Subtitle,
-                                          file=SimpleUploadedFile("attachment1.txt", b"Test attachment"))
-            return redirect(f"/file_page/{content.file.name}")
+            # if len(filename.split("/")) > 1:
+            #     filename = filename.split("/")[-1]
+            # content = Content.objects.create(creator=request.user, type=Content.ContentType.Text,
+            #                                  file=SimpleUploadedFile(filename, b"Test File"))
+            # content.contentfeature_set.create(name="feature1", value="value1")
+            # content.attachment_set.create(type=Attachment.AttachmentType.Subtitle,
+            #                               file=SimpleUploadedFile("attachment1.txt", b"Test attachment"))
+            # return redirect(f"/file_page/{content.file.name}")
+            messages.info(request, f"{filename} doesn't exists.")
+            return redirect("/")
         else:
-            raise Exception
+            messages.error(request, "internal error")
+            return redirect("/")
         return render(request, 'libcloud/file_page.html', {'file': content})
     else:
         return redirect('libcloud:file_page', filename)

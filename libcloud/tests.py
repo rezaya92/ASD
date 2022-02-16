@@ -257,7 +257,7 @@ class FilePageTest(TestCase):
         super().tearDown()
 
     def test_file_page_success(self):
-        print(f"{self.file_page_url}/{self.content.file.name}")
+        # print(f"{self.file_page_url}/{self.content.file.name}")
         response = self.client.get(f"{self.file_page_url}/{self.content.file.name}")
         self.assertEqual(response.status_code, 200)
 

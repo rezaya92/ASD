@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Model
 
@@ -53,6 +54,10 @@ class Attachment(Model):
         Subtitle = 1
         Other = 2
 
+    content_to_attachment_map = {
+        Content.ContentType.Video.label: {AttachmentType.Subtitle.label}
+    }
+
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     type = models.IntegerField(choices=AttachmentType.choices)
     file = models.FileField(upload_to=get_attachment_upload_path)
@@ -60,6 +65,15 @@ class Attachment(Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+    def clean(self):
+        errors = {}
+        if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
+                Attachment.content_to_attachment_map[self.content.get_type_display()]:
+            errors["mismatch types"] = f"{self.content.get_type_display()} " \
+                                       f"can not have {self.get_type_display()} attachment."
+        if errors:
+            raise ValidationError(errors)
 
     def filename(self):
         return os.path.basename(self.file.name)
