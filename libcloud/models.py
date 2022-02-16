@@ -18,7 +18,7 @@ class Content(Model):
     class ContentType(models.IntegerChoices):
         Video = 1
         Image = 2
-        Book = 3
+        Text = 3
         Audio = 4
         Other = 5
 

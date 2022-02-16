@@ -6,10 +6,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
-from ASD import settings
+from django.conf import settings
 from libcloud.models import Content, Attachment
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
@@ -65,7 +66,7 @@ def file_page(request, filename):
         elif contents.count() == 0:
             if len(filename.split("/")) > 1:
                 filename = filename.split("/")[-1]
-            content = Content.objects.create(creator=request.user, type=Content.ContentType.Book,
+            content = Content.objects.create(creator=request.user, type=Content.ContentType.Text,
                                              file=SimpleUploadedFile(filename, b"Test File"))
             content.contentfeature_set.create(name="feature1", value="value1")
             content.attachment_set.create(type=Attachment.AttachmentType.Subtitle,
@@ -81,14 +82,13 @@ def file_page(request, filename):
 def download_file(request, user_prefix, filename):
     if request.method == "GET":
         file_path = os.path.join(settings.MEDIA_ROOT, user_prefix, filename)
-
         if not os.path.exists(file_path):
             messages.error(request, f"{filename} doesn't exists.")
             return redirect("/")
 
         mime_type, _ = mimetypes.guess_type(file_path)
         with open(file_path, 'rb') as f:
-            response = HttpResponse(f.read(), content_type=mime_type)
+            response = HttpResponse(f.read(), content_type=mime_type, status=200)
             response['Content-Disposition'] = "attachment; filename=%s" % filename
             return response
     else:
