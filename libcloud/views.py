@@ -19,8 +19,13 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 def homePageView(request):
-    return render(request=request, template_name='libcloud/intro.html')
+    context = {}
+    context.update({'files': get_files()})
+    return render(request=request, template_name='libcloud/intro.html',context = context)
 
+def get_files():
+    files = Content.objects.order_by('creator')[:1]
+    return files
 
 def register_request(request):
     if request.method == "POST":
