@@ -83,8 +83,8 @@ class AttachmentModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
 
-        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Text,
-                                              file=SimpleUploadedFile('temp.txt', b"Test File"))
+        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Video,
+                                              file=SimpleUploadedFile('vid.mp4', b"3242"))
 
         self.attachment_file = SimpleUploadedFile('attachment.txt', b"Hello")
         super().setUp()
@@ -97,11 +97,6 @@ class AttachmentModelTest(TestCase):
     def test_correct_attachment_create(self):
         Attachment.objects.create(content=self.content, type=Attachment.AttachmentType.Subtitle,
                                   file=self.attachment_file)
-
-    def test_attachment_create_with_null_content(self):
-        with self.assertRaises(ValidationError):
-            Attachment.objects.create(type=Attachment.AttachmentType.Subtitle,
-                                      file=self.attachment_file)
 
     def test_attachment_create_with_null_type(self):
         with self.assertRaises(ValidationError):
