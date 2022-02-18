@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Libraries</title>
+</head>
+<body>
+<h1>Libraries</h1>
+<ul>
+{% for library in object_list %}
+    <li>{{ library.name }}</li>
+    <ul>
+    {% for content in library.content_set.all %}
+    <li>
+        {{ content.file }}
+    </li>
+    {%  endfor %}
+    </ul>
+{% empty %}
+    <li>No libraries yet.</li>
+{% endfor %}
+</ul>
+</body>
+</html>

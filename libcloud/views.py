@@ -11,7 +11,9 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
-from libcloud.models import Content, Attachment
+from django.views.generic import ListView
+
+from libcloud.models import Content, Attachment, Library
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -118,3 +120,8 @@ def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect("/")
+
+
+class AllLibrariesView(ListView):
+    model = Library
+

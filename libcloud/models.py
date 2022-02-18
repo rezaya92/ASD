@@ -26,15 +26,9 @@ class Library(Model):
 
 
 class Content(Model):
-    class ContentType(models.IntegerChoices):
-        Video = 1
-        Image = 2
-        Text = 3
-        Audio = 4
-        Other = 5
 
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
-    type = models.IntegerField(choices=ContentType.choices)
+    type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     file = models.FileField(upload_to=get_content_upload_path)
     library = models.ForeignKey(to=Library, on_delete=models.CASCADE, null=True, blank=True)
 
@@ -65,10 +59,6 @@ class Attachment(Model):
         Subtitle = 1
         Other = 2
 
-    content_to_attachment_map = {
-        Content.ContentType.Video.label: {AttachmentType.Subtitle.label}
-    }
-
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     type = models.IntegerField(choices=AttachmentType.choices)
     file = models.FileField(upload_to=get_attachment_upload_path)
@@ -77,11 +67,11 @@ class Attachment(Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    def clean(self):
-        if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
-                Attachment.content_to_attachment_map[self.content.get_type_display()]:
-            raise ValidationError(f"{self.content.get_type_display()} " +
-                                  f"can not have {self.get_type_display()} attachment.")
+    # def clean(self):
+    #     if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
+    #             Attachment.content_to_attachment_map[self.content.get_type_display()]:
+    #         raise ValidationError(f"{self.content.get_type_display()} " +
+    #                               f"can not have {self.get_type_display()} attachment.")
 
     def filename(self):
         return os.path.basename(self.file.name)
