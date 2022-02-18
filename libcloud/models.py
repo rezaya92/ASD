@@ -35,6 +35,11 @@ class Content(Model):
         return os.path.basename(self.file.name)
 
 
+class ContentType(Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=32)
+
+
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
