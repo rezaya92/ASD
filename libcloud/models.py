@@ -15,6 +15,16 @@ def get_content_upload_path(instance, filename):
         "user_%s" % instance.creator.username, filename)
 
 
+class ContentType(Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=32)
+
+
+class Library(Model):
+    name = models.CharField(max_length=50)
+    content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
+
+
 class Content(Model):
     class ContentType(models.IntegerChoices):
         Video = 1
@@ -26,6 +36,7 @@ class Content(Model):
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     type = models.IntegerField(choices=ContentType.choices)
     file = models.FileField(upload_to=get_content_upload_path)
+    library = models.ForeignKey(to=Library, on_delete=models.CASCADE, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -33,11 +44,6 @@ class Content(Model):
 
     def filename(self):
         return os.path.basename(self.file.name)
-
-
-class ContentType(Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=32)
 
 
 class ContentFeature(Model):
@@ -76,7 +82,6 @@ class Attachment(Model):
                 Attachment.content_to_attachment_map[self.content.get_type_display()]:
             raise ValidationError(f"{self.content.get_type_display()} " +
                                   f"can not have {self.get_type_display()} attachment.")
-
 
     def filename(self):
         return os.path.basename(self.file.name)
