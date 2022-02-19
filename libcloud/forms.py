@@ -28,9 +28,9 @@ class NewUserForm(UserCreationForm):
 class ContentTypeForm(ModelForm):
     class Meta:
         model = ContentType
-        fields = ("type", "attachment_types")
+        fields = ("name", "attachment_types")
         labels = {
-            'type': _('Content type name'),
+            'name': _('Content type name'),
         }
         widgets = {
             'attachment_types': forms.CheckboxSelectMultiple,

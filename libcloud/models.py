@@ -18,19 +18,19 @@ def get_content_upload_path(instance, filename):
 
 class AttachmentType(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    type = models.CharField(blank=False, max_length=40)
+    name = models.CharField(blank=False, max_length=40)
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return " " + self.type
+        return " " + self.name
 
 
 class ContentType(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    type = models.CharField(blank=False, max_length=40)
+    name = models.CharField(blank=False, max_length=40)
     attachment_types = models.ManyToManyField(AttachmentType, blank=True)
 
     def save(self, *args, **kwargs):
@@ -56,6 +56,7 @@ class ContentTypeFeature(Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
 
 class Library(Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
@@ -95,7 +96,6 @@ def get_attachment_upload_path(instance, filename):
 
 
 class Attachment(Model):
-
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
     type = models.IntegerField()
     file = models.FileField(upload_to=get_attachment_upload_path)
