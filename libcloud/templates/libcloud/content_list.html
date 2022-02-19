@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>my content</title>
+</head>
+<body>
+<ul>
+{% for content in object_list %}
+    <li>{{ content.file }}</li>
+</ul>
+{% endfor %}
+</body>
+</html>
