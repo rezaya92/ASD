@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My content types</title>
+</head>
+<body>
+<ul>
+{% for content_type in object_list %}
+    <li>{{ content_type.name }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>
