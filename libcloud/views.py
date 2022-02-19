@@ -6,13 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import transaction
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
-from libcloud.models import Content, Attachment
-from .forms import NewUserForm
+from libcloud.models import Content, Attachment, ContentTypeFeature
+from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -21,11 +22,13 @@ from django.contrib.auth.forms import AuthenticationForm
 def homePageView(request):
     context = {}
     context.update({'files': get_files()})
-    return render(request=request, template_name='libcloud/intro.html',context = context)
+    return render(request=request, template_name='libcloud/intro.html', context=context)
+
 
 def get_files():
     files = Content.objects.order_by('creator')[:1]
     return files
+
 
 def register_request(request):
     if request.method == "POST":
@@ -41,7 +44,7 @@ def register_request(request):
         return render(request=request, template_name='libcloud/register.html', context={"register_form": form},
                       status=400)
     form = NewUserForm()
-    return render(request=request, template_name='libcloud/register.html', context={"register_form": form} ,status=200)
+    return render(request=request, template_name='libcloud/register.html', context={"register_form": form}, status=200)
 
 
 def login_request(request):
@@ -57,10 +60,12 @@ def login_request(request):
                 return redirect("/")
             else:
                 messages.error(request, "Invalid username or password.")
-                return render(request=request, template_name="libcloud/login.html", context={"login_form": form},status=401)
+                return render(request=request, template_name="libcloud/login.html", context={"login_form": form},
+                              status=401)
         else:
             messages.error(request, "Invalid username or password.")
-            return render(request=request, template_name="libcloud/login.html", context={"login_form": form} ,status=401)
+            return render(request=request, template_name="libcloud/login.html", context={"login_form": form},
+                          status=401)
     form = AuthenticationForm()
     return render(request=request, template_name="libcloud/login.html", context={"login_form": form})
 
@@ -112,6 +117,38 @@ def download_file(request, user_prefix, filename):
 @login_required
 def upload_file(request):
     pass
+
+
+@login_required
+def new_content_type(request):
+    if request.method == "POST":
+        print(request.POST)
+        form = ContentTypeForm(request.POST, initial={'user': request.user}, prefix='content-type')
+        formset = ContentTypeFeatureFormset(request.POST, prefix="feature")
+
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    content_type = form.save(commit=True)
+                    form.save_m2m()
+                    print(content_type.attachment_types.all())
+                    for form1 in formset:
+                        content_type_feature = form1.save(commit=False)
+                        content_type_feature.content_type = content_type
+                        content_type_feature.save()
+            except Exception as e:
+                messages.error(request, e)
+                redirect("libcloud:new_content_type")
+        else:
+            messages.error(request, form.errors)
+            messages.error(request, formset.errors)
+            redirect("libcloud:new_content_type")
+    form = ContentTypeForm(prefix='content-type', initial={'user': request.user})
+    formset = ContentTypeFeatureFormset(queryset=ContentTypeFeature.objects.none(), prefix="feature")
+    for form1 in formset:
+        print(form1.as_table())
+    return render(request, 'libcloud/new_content_type.html', {
+        'form': form, 'formset': formset})
 
 
 def logout_request(request):
