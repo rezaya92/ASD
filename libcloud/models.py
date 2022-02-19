@@ -28,6 +28,7 @@ class ContentType(Model):
 
 
 class Library(Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
 
