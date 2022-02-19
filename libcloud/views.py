@@ -140,8 +140,9 @@ class AllLibrariesView(ListView):
 
 
 class EachLibraryView(DetailView):
-
     model = Library
+    def get_queryset(self):
+        return Library.objects.filter(user=self.request.user)
 
 
 class LibraryCreateView(CreateView):

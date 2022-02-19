@@ -37,12 +37,10 @@
                 Libaries
                 </a>
                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-                    {% for library in object_list %}
-                        <li><a class="dropdown-item" href="{{ library.get_absolute_url }}">{{ library.name }}</a></li>
-                    {% endfor %}
                     {% for library in libraries %}
                         <li><a class="dropdown-item" href="{{ library.get_absolute_url }}">{{ library.name }}</a></li>
                     {% endfor %}
+
                     <hr class="dropdown-divider" />
                     <li><a class="dropdown-item" href="/libraries/">Show All</a></li>
                 </ul>

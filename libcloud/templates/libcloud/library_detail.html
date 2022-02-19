@@ -1,16 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>library</title>
-</head>
-<body>
-<h1> {{ library.name }} </h1>
-{% for content in library.content_set.all %}
-<li>
-    {{ content.file }}
-</li>
-{%  endfor %}
-</body>
-</html>
+{% extends 'libcloud/base.html' %}
+{% load static %}
+{% block content %}
+    <div style="height:10vh"></div>
+    <div class="card-box">
+        <div style="text-align: center;" class="row">
+        <h1> {{ library.name }} </h1>
+            {% for content in library.content_set.all %}
+
+                <div class="file-man-box">
+                    <a href="/file_page/user_{{ content.creator }}/{{ content.filename }}">
+                    <div class="file-img-box">
+                        {% static "" as baseUrl %}
+                        <img src="{{ baseUrl }}images/Other.svg" alt="icon">
+                    </div>
+                    </a>
+                    <div class="file-man-title">
+                        <h5 class="mb-0 text-overflow">{{ content.filename }}</h5>
+                    </div>
+                </div>
+
+                {% empty %}
+                <li>No libraries yet.</li>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
 
