@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>library</title>
+</head>
+<body>
+<h1> {{ contenttype.name }} </h1>
+{% for attachment_type in contenttype.attachment_types.all %}
+<li>
+    {{ attachment_type.name }}
+</li>
+{%  endfor %}
+</body>
+</html>

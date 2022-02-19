@@ -191,5 +191,7 @@ class ContentTypeCreateView(CreateView):
         obj.user = self.request.user
         return super(ContentTypeCreateView, self).form_valid(form)
 
-    def get_success_url(self):
-        return reverse('libcloud:my_content_types')
+
+class EachContentTypeView(DetailView):
+
+    model = ContentType
