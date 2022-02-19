@@ -34,9 +34,20 @@
             <li class="nav-item">
                 <a class="nav-link" href="#">Upload file</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/libraries/">Libaries</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="/libraries/" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Libaries
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                    {% for library in libraries %}
+                        <li><a class="dropdown-item" href="{{ library.get_absolute_url }}">{{ library.name }}</a></li>
+                    {% endfor %}
+
+                    <hr class="dropdown-divider" />
+                    <li><a class="dropdown-item" href="/libraries/">Show All</a></li>
+                </ul>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="#">Categories</a>
             </li>

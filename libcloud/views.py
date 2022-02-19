@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -29,11 +29,15 @@ def homePageView(request):
     context = {}
     current_user = request.user
     if request.user.is_authenticated:
-        my_filter_qs = Q()
-        my_filter_qs = my_filter_qs | Q(creator=current_user)
-        print(current_user)
-        files = Content.objects.filter(my_filter_qs).order_by('-id')[:5]
-        context.update({'files': files})
+        filter_file = Q()
+        filter_lib = Q()
+        filter_file = filter_file | Q(creator=current_user)
+        filter_lib = filter_lib | Q(user=current_user)
+        files = Content.objects.filter(filter_file).order_by('-id')[:5]
+        libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
+                                 .order_by('-q_count')
+        context.update({'files': files,
+                        'libraries' : libs})
     return render(request=request, template_name='libcloud/intro.html',context = context)
 
 def register_request(request):
@@ -166,10 +170,16 @@ def logout_request(request):
 class AllLibrariesView(ListView):
     model = Library
 
+    def get_queryset(self):
+        return Library.objects.filter(user=self.request.user)
+
+
+
 
 class EachLibraryView(DetailView):
-
     model = Library
+    def get_queryset(self):
+        return Library.objects.filter(user=self.request.user)
 
 
 class LibraryCreateView(CreateView):
