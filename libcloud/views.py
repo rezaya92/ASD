@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models import Q
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -22,12 +23,14 @@ from django.contrib.auth.forms import AuthenticationForm
 
 def homePageView(request):
     context = {}
-    context.update({'files': get_files()})
+    current_user = request.user
+    if request.user.is_authenticated:
+        my_filter_qs = Q()
+        my_filter_qs = my_filter_qs | Q(creator=current_user)
+        print(current_user)
+        files = Content.objects.filter(my_filter_qs)[:3]
+        context.update({'files': files})
     return render(request=request, template_name='libcloud/intro.html',context = context)
-
-def get_files():
-    files = Content.objects.order_by('creator')[:1]
-    return files
 
 def register_request(request):
     if request.method == "POST":

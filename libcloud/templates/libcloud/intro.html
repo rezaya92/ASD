@@ -10,7 +10,48 @@
     </div>
     {% endif %}
     {% if user.is_authenticated %}
-    <h3 style="height: 20vh"> Recent Files:</h3>
+        <div style="height:10vh"></div>
+        <h3> Recent Files:</h3>
+
+        {% static "" as baseUrl %}
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card-box">
+                    <div class="row">
+                            <h4 class="header-title m-b-30">recent File:</h4>
+                    </div>
+
+                    <div class="row">
+                        {% for file in files %}
+
+                            <div class="file-man-box">
+                                <a href="file_page/user_{{ file.creator }}/{{ file.filename }}">
+                                <div class="file-img-box">
+                                    {% static "" as baseUrl %}
+                                    <img src="{{ baseUrl }}images/Other.svg" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
+                                <div class="file-man-title">
+                                    <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
+                                    <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
+                                </div>
+                                </a>
+                            </div>
+
+
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+            <!-- end col -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- container -->
+
+
     <h3> Libraries:</h3>
 {% endif %}
- {% endblock %}
+{% endblock %}
