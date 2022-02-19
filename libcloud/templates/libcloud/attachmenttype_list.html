@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My attachment types</title>
+</head>
+<body>
+<ul>
+{% for attachment_type in object_list %}
+    <li>{{ attachment_type.name }}</li>
+{% endfor %}
+</ul>
+</body>
+</html>

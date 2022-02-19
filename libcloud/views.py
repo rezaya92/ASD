@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.views.generic import ListView, DetailView, CreateView
 
-from libcloud.models import Content, Attachment, Library, ContentType
+from libcloud.models import Content, Attachment, Library, ContentType, AttachmentType
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -149,3 +149,10 @@ class MyContentTypeView(ListView):
 
     def get_queryset(self):
         return ContentType.objects.filter(user=self.request.user)
+
+
+class MyAttachmentTypeView(ListView):
+    model = AttachmentType
+
+    def get_queryset(self):
+        return AttachmentType.objects.filter(user=self.request.user)

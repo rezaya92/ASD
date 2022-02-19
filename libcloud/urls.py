@@ -18,6 +18,7 @@ urlpatterns = [
     path("libraries/<int:pk>/", views.EachLibraryView.as_view(), name="each_library"),
     path("libraries/create/", views.LibraryCreateView.as_view(), name="create_library"),
     path("my_content/", views.MyContentView.as_view(), name="my_content"),
-    path("my_content_types/", views.MyContentTypeView.as_view(), name="my_content_type")
+    path("my_content_types/", views.MyContentTypeView.as_view(), name="my_content_types"),
+    path("my_attachment_types/", views.MyAttachmentTypeView.as_view(), name="my_content_types")
     # path("upload_success", views.upload_success, name="upload_success"),
 ]
