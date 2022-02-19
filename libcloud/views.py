@@ -12,9 +12,10 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
+from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
 
-from libcloud.models import Content, Attachment, Library, ContentType
+from libcloud.models import Content, Attachment, Library, ContentType, AttachmentType
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -139,6 +140,11 @@ class LibraryCreateView(CreateView):
     model = Library
     fields = ['name', 'content_type']
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(LibraryCreateView, self).form_valid(form)
+
 
 class MyContentView(ListView):
     model = Content
@@ -152,3 +158,40 @@ class MyContentTypeView(ListView):
 
     def get_queryset(self):
         return ContentType.objects.filter(user=self.request.user)
+
+
+class MyAttachmentTypeView(ListView):
+    model = AttachmentType
+
+    def get_queryset(self):
+        return AttachmentType.objects.filter(user=self.request.user)
+
+
+class AttachmentTypeCreateView(CreateView):
+
+    model = AttachmentType
+    fields = ['name']
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(AttachmentTypeCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('libcloud:my_attachment_types')
+
+
+class ContentTypeCreateView(CreateView):
+
+    model = ContentType
+    fields = ['name']
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(ContentTypeCreateView, self).form_valid(form)
+
+
+class EachContentTypeView(DetailView):
+
+    model = ContentType

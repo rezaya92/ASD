@@ -26,8 +26,12 @@ class ContentType(Model):
     name = models.CharField(max_length=32)
     attachment_types = models.ManyToManyField(to=AttachmentType)
 
+    def get_absolute_url(self):
+        return reverse('libcloud:each_content_type', kwargs={'pk': self.pk})
+
 
 class Library(Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
 
