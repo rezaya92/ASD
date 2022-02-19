@@ -133,3 +133,5 @@ django_heroku.settings(locals(), test_runner=False)
 CSRF_TRUSTED_ORIGINS = [
     'https://libcloud.herokuapp.com'
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'

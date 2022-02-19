@@ -17,18 +17,45 @@ def get_content_upload_path(instance, filename):
 
 
 class AttachmentType(Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=32)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(blank=False, max_length=40)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return " " + self.type
 
 
 class ContentType(Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=32)
-    attachment_types = models.ManyToManyField(to=AttachmentType)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(blank=False, max_length=40)
+    attachment_types = models.ManyToManyField(AttachmentType, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('libcloud:each_content_type', kwargs={'pk': self.pk})
 
+
+class ContentTypeFeature(Model):
+    class FeatureType(models.IntegerChoices):
+        number = 1
+        String = 2
+        Boolean = 3
+        # TODO
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    type = models.IntegerField(choices=FeatureType.choices)
+    required = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 class Library(Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
@@ -40,7 +67,6 @@ class Library(Model):
 
 
 class Content(Model):
-
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     file = models.FileField(upload_to=get_content_upload_path)
@@ -69,12 +95,9 @@ def get_attachment_upload_path(instance, filename):
 
 
 class Attachment(Model):
-    class AttachmentType(models.IntegerChoices):
-        Subtitle = 1
-        Other = 2
 
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
-    type = models.IntegerField(choices=AttachmentType.choices)
+    type = models.IntegerField()
     file = models.FileField(upload_to=get_attachment_upload_path)
 
     def save(self, *args, **kwargs):

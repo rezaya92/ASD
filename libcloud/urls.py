@@ -13,6 +13,7 @@ urlpatterns = [
     path("logout/", views.logout_request, name="logout"),
     path("file_page/<path:filename>", views.file_page, name="file_page"),
     path("upload_file", views.upload_file, name="upload_file"),
+    path("new_content_type", views.new_content_type, name="new_content_type"),
     path(settings.MEDIA_URL + "<str:user_prefix>/<str:filename>", views.download_file, name="download_file"),
     path("libraries/", views.AllLibrariesView.as_view(), name="all_libraries"),
     path("libraries/<int:pk>/", views.EachLibraryView.as_view(), name="each_library"),
