@@ -28,7 +28,7 @@ def homePageView(request):
         my_filter_qs = Q()
         my_filter_qs = my_filter_qs | Q(creator=current_user)
         print(current_user)
-        files = Content.objects.filter(my_filter_qs)[:3]
+        files = Content.objects.filter(my_filter_qs).order_by('-id')[:5]
         context.update({'files': files})
     return render(request=request, template_name='libcloud/intro.html',context = context)
 
