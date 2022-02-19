@@ -16,9 +16,15 @@ def get_content_upload_path(instance, filename):
         "user_%s" % instance.creator.username, filename)
 
 
+class AttachmentType(Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=32)
+
+
 class ContentType(Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
+    attachment_types = models.ManyToManyField(to=AttachmentType)
 
 
 class Library(Model):
