@@ -14,6 +14,8 @@ urlpatterns = [
     path("file_page/<path:filename>", views.file_page, name="file_page"),
     path("upload_file", views.upload_file, name="upload_file"),
     path(settings.MEDIA_URL + "<str:user_prefix>/<str:filename>", views.download_file, name="download_file"),
-    path("libraries/", views.AllLibrariesView.as_view(), name="all_libraries")
+    path("libraries/", views.AllLibrariesView.as_view(), name="all_libraries"),
+    path("libraries/<int:pk>/", views.EachLibraryView.as_view(), name="each_library"),
+    path("libraries/create/", views.LibraryCreateView.as_view(), name="create_library")
     # path("upload_success", views.upload_success, name="upload_success"),
 ]

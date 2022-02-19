@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Model
+from django.urls import reverse
 
 
 def get_sentinel_user():
@@ -23,6 +24,9 @@ class ContentType(Model):
 class Library(Model):
     name = models.CharField(max_length=50)
     content_type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('libcloud:each_library', kwargs={'pk': self.pk})
 
 
 class Content(Model):

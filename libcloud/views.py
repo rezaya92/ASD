@@ -12,7 +12,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView, CreateView
 
 from libcloud.models import Content, Attachment, Library
 from .forms import NewUserForm
@@ -128,3 +128,13 @@ def logout_request(request):
 class AllLibrariesView(ListView):
     model = Library
 
+
+class EachLibraryView(DetailView):
+
+    model = Library
+
+
+class LibraryCreateView(CreateView):
+
+    model = Library
+    fields = ['name', 'content_type']
