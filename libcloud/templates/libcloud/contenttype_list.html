@@ -1,14 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My content types</title>
-</head>
-<body>
-<ul>
-{% for content_type in object_list %}
-    <li>{{ content_type.name }}</li>
-{% endfor %}
-</ul>
-</body>
-</html>
+{% extends 'libcloud/base.html' %}
+
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% load crispy_forms_utils %}
+
+{% block content %}
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="w-75">
+                    <div class="card-box">
+                        <div style="background: #DCDCDC" class="py-3">
+                            <h4 class="header-title text-center pb-2">My content types</h4>
+                            <div class="row justify-content-center">
+                                <table class="w-auto">
+                                    {% for c_type in content_types %}
+                                        <tr>
+                                            <td>
+                                                {{ forloop.counter }}.
+                                            </td>
+                                            <td class="text-overflow">
+                                                {{ c_type.name }}
+                                            </td>
+                                            <td style="text-align:right">
+                                                <a href={{ c_type.get_absolute_url }}>
+                                                    details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row mt-3 justify-content-center">
+                            <div class="w-25">
+                                <button class="btn btn-block btn-primary" onclick="location.href='/content_type/create/';">Create new one</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- container -->
+    </div>
+
+{% endblock %}
