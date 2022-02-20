@@ -67,5 +67,21 @@ class ContentTypeFeatureForm(ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class AttachmentTypeForm(ModelForm):
+    class Meta:
+        model = AttachmentType
+        fields = ("name",)
+        labels = {
+            'name': _('New Attachment type'),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline justify-content-center'
+        self.helper.field_template = 'libcloud/layout/inline_field.html'
+        # self.helper.form_tag = False
+        super().__init__(*args, **kwargs)
+
+
 ContentTypeFeatureFormset = modelformset_factory(ContentTypeFeature, form=ContentTypeFeatureForm, extra=1,
                                                  absolute_max=20, max_num=20)
