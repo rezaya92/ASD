@@ -1,15 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>library</title>
-</head>
-<body>
-<h1> {{ contenttype.name }} </h1>
-{% for attachment_type in contenttype.attachment_types.all %}
-<li>
-    {{ attachment_type.name }}
-</li>
-{%  endfor %}
-</body>
-</html>
+{% extends 'libcloud/base.html' %}
+
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% load crispy_forms_utils %}
+
+{% block content %}
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="w-75">
+                    <div class="card-box">
+                        <div class="row justify-content-center">
+                            <div class="row mb-3 justify-content-center">
+                                <h4 class="header-title text-center pb-2">Content type</h4>
+                                <div class="text-center w-25">
+                                    {{ contenttype.name }}
+                                </div>
+                            </div>
+                            <div style="background: #DCDCDC" class="py-3">
+                                <h4 class="header-title text-center pb-2">features</h4>
+                                <div class="row justify-content-center">
+                                    <table class="w-auto">
+                                        {% for feature in contenttype.contenttypefeature_set.all %}
+                                            <tr>
+{#                                                <td>#}
+{#                                                    {{ forloop.counter }}.#}
+{#                                                </td>#}
+                                                <td style="text-overflow: ellipsis;">
+                                                    {{ feature.name }}
+                                                </td>
+                                                <td style="text-overflow: ellipsis;">
+                                                    {{ feature.get_type_display }}
+                                                </td>
+                                                <td style="text-overflow: ellipsis; text-align:right;">
+                                                    {% if feature.required %}
+                                                        required
+                                                    {% else %}
+                                                        optional
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="row justify-content-center mt-3">
+                                <h4 class="header-title text-center pb-2">valid attachment types</h4>
+                                <table class="w-25">
+                                    {% for at_type in contenttype.attachment_types.all %}
+                                        <tr>
+{#                                            <td>#}
+{#                                                {{ forloop.counter }}.#}
+{#                                            </td>#}
+                                            <td style="text-overflow: ellipsis; text-align:center;">
+                                                {{ at_type.name }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- container -->
+    </div>
+
+{% endblock %}
