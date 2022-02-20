@@ -1,14 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My attachment types</title>
-</head>
-<body>
-<ul>
-{% for attachment_type in object_list %}
-    <li>{{ attachment_type.name }}</li>
-{% endfor %}
-</ul>
-</body>
-</html>
+{% extends 'libcloud/base.html' %}
+
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% load crispy_forms_utils %}
+
+{% block content %}
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="w-75">
+                    <div class="card-box">
+                        <div style="background: #DCDCDC" class="py-3">
+                            <h4 class="header-title text-center pb-2">My attachment types</h4>
+                            <div class="row justify-content-center">
+                                {% for at_type in attachment_types %}
+                                    <div class="form-row justify-content-center">
+                                        <div class="inline text-center mr-2">
+                                            {{ forloop.counter }}.
+                                        </div>
+                                        <div class="inline text-center mr-2">
+                                            {{ at_type.name }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <form class="form-row justify-content-center" method="POST">
+                                {% csrf_token %}
+                                {{ form.name|as_crispy_field }}
+                                <div class="form-group mr-2"></div>
+                                <div class="form-group w-10">
+                                    <button type="submit" class="btn btn-block btn-primary">Create</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- container -->
+    </div>
+
+{% endblock %}
