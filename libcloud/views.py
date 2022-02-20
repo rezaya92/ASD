@@ -26,7 +26,8 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 def homePageView(request):
-    context = {}
+    context = {'1':'1',
+               '2':'2'}
     current_user = request.user
     if request.user.is_authenticated:
         filter_file = Q()
@@ -41,8 +42,11 @@ def homePageView(request):
 
     return render(request=request, template_name='libcloud/intro.html',context = context)
 
+
 def get_lib(request):
     context = {}
+    context.update({'1':'1',
+               '2':'2'})
     current_user = request.user
     if request.user.is_authenticated:
         filter_lib = Q()
@@ -50,7 +54,7 @@ def get_lib(request):
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
                    .order_by('-q_count')
         context.update({'libraries': libs})
-        return context
+    return context
 
 def register_request(request):
     if request.method == "POST":
