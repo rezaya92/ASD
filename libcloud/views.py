@@ -7,14 +7,14 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
-from django.db.models import Q,Count
+from django.db.models import Q, Count
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
 from libcloud.models import Content, Attachment, ContentTypeFeature
-from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm
+from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
 
@@ -35,10 +35,11 @@ def homePageView(request):
         filter_lib = filter_lib | Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-                                 .order_by('-q_count')
+            .order_by('-q_count')
         context.update({'files': files,
-                        'libraries' : libs})
-    return render(request=request, template_name='libcloud/intro.html',context = context)
+                        'libraries': libs})
+    return render(request=request, template_name='libcloud/intro.html', context=context)
+
 
 def register_request(request):
     if request.method == "POST":
@@ -130,7 +131,7 @@ def upload_file(request):
 
 
 @login_required
-def new_content_type(request):
+def create_content_type(request):
     if request.method == "POST":
         print(request.POST)
         form = ContentTypeForm(request.POST, initial={'user': request.user}, prefix='content-type')
@@ -148,17 +149,34 @@ def new_content_type(request):
                         content_type_feature.save()
             except Exception as e:
                 messages.error(request, e)
-                redirect("libcloud:new_content_type")
+                redirect("libcloud:create_content_type")
         else:
             messages.error(request, form.errors)
             messages.error(request, formset.errors)
-            redirect("libcloud:new_content_type")
+            redirect("libcloud:create_content_type")
     form = ContentTypeForm(prefix='content-type', initial={'user': request.user})
     formset = ContentTypeFeatureFormset(queryset=ContentTypeFeature.objects.none(), prefix="feature")
     for form1 in formset:
         print(form1.as_table())
-    return render(request, 'libcloud/new_content_type.html', {
+    return render(request, 'libcloud/contenttype_form.html', {
         'form': form, 'formset': formset})
+
+
+def my_attachment_types(request):
+    if request.method == "POST":
+        print(request.POST)
+        form = AttachmentTypeForm(request.POST)
+
+        if form.is_valid():
+            attachment_type = form.save(commit=False)
+            attachment_type.user = request.user
+            attachment_type.save()
+            messages.info(request, f"attachment type {attachment_type.name} has been created")
+        else:
+            messages.error(request, form.errors)
+    form = AttachmentTypeForm()
+    return render(request, 'libcloud/attachmenttype_list.html', {
+        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)})
 
 
 def logout_request(request):
@@ -174,16 +192,14 @@ class AllLibrariesView(ListView):
         return Library.objects.filter(user=self.request.user)
 
 
-
-
 class EachLibraryView(DetailView):
     model = Library
+
     def get_queryset(self):
         return Library.objects.filter(user=self.request.user)
 
 
 class LibraryCreateView(CreateView):
-
     model = Library
     fields = ['name', 'content_type']
 
@@ -215,7 +231,6 @@ class MyAttachmentTypeView(ListView):
 
 
 class AttachmentTypeCreateView(CreateView):
-
     model = AttachmentType
     fields = ['name']
 
@@ -229,7 +244,6 @@ class AttachmentTypeCreateView(CreateView):
 
 
 class ContentTypeCreateView(CreateView):
-
     model = ContentType
     fields = ['name']
 
@@ -240,5 +254,4 @@ class ContentTypeCreateView(CreateView):
 
 
 class EachContentTypeView(DetailView):
-
     model = ContentType
