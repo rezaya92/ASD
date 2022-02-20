@@ -35,9 +35,10 @@ def homePageView(request):
         filter_lib = filter_lib | Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-                                 .order_by('-q_count')
+                                 .order_by('-q_count')[:3]
         context.update({'files': files,
                         'libraries' : libs})
+
     return render(request=request, template_name='libcloud/intro.html',context = context)
 
 def register_request(request):

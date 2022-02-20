@@ -16,7 +16,7 @@
                         <div class="file-man-box">
                             <div class="file-img-box">
                                 {% static "" as baseUrl %}
-                                <img src="{{ baseUrl }}images/Other.svg" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
+                                <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
                             <div class="file-man-title">
                                 <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
                                 <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
@@ -35,7 +35,7 @@
                             <div class="file-man-box">
                                 <div class="file-img-box">
                                     {% static "" as baseUrl %}
-                                    <img src="{{ baseUrl }}images/Other.svg" alt="icon"></div><a href={{ attachment.file.url }} ><i class="fa fa-download"></i></a>
+                                    <img src="{{ baseUrl }}images/attach-file.png" alt="icon"></div><a href={{ attachment.file.url }} ><i class="fa fa-download"></i></a>
 
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ attachment.filename }}</h5>

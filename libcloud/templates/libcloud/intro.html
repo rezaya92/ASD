@@ -22,7 +22,7 @@
                                 <a href="file_page/user_{{ file.creator }}/{{ file.filename }}">
                                 <div class="file-img-box">
                                     {% static "" as baseUrl %}
-                                    <img src="{{ baseUrl }}images/Other.svg" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
+                                    <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
                                     <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
@@ -33,6 +33,29 @@
                         {% endfor %}
                     </div>
                 </div>
-    <h3>Top Libraries:</h3>
+                <div class="card-box">
+                    <div class="row">
+                        <h4 class="header-title m-b-30">Top Libraries:</h4>
+                    </div>
+                    <div class="row">
+                        {% for lib in libraries %}
+                            <div class="file-man-box">
+                                <a href="file_page/{{ lib.name }}">
+                                <div class="file-img-box">
+                                    {% static "" as baseUrl %}
+                                    <img src="{{ baseUrl }}images/lib.png" alt="icon"></div>
+                                    <a href={{ file.file.url }}></a>
+                                <div class="file-man-title">
+                                    <h5 class="mb-0 text-overflow">{{ lib.name }}</h5>
+                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type }}</h6>
+                                </div>
+
+                                </a>
+                            </div>
+
+                        {% endfor %}
+                    </div>
+                </div>
+
 {% endif %}
 {% endblock %}
