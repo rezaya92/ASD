@@ -1,15 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>library</title>
-</head>
-<body>
-<h1> {{ contenttype.name }} </h1>
-{% for attachment_type in contenttype.attachment_types.all %}
-<li>
-    {{ attachment_type.name }}
-</li>
-{%  endfor %}
-</body>
-</html>
+
+
+
+{% extends 'libcloud/base.html' %}
+{% load static %}
+{% block content %}
+    <div style="height:10vh"></div>
+    <div class="card-box">
+        <div style="text-align: center;" class="row">
+            {% for attachment_type in contenttype.attachment_types.all %}
+
+                <div class="file-man-box">
+                    <a href="{{library.get_absolute_url}}">
+                    <div class="file-img-box">
+                        {% static "" as baseUrl %}
+                        <img src="{{ baseUrl }}images/attachment.svg" alt="icon">
+                    </div>
+                    </a>
+                    <div class="file-man-title">
+                        <h5 class="mb-0 text-overflow">{{ attachment_type.name  }}</h5>
+                    </div>
+                </div>
+
+                {% empty %}
+                <li>No attachment yet.</li>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,14 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My content types</title>
-</head>
-<body>
-<ul>
-{% for content_type in object_list %}
-    <li>{{ content_type.name }}</li>
-{% endfor %}
-</ul>
-</body>
-</html>
+{% extends 'libcloud/base.html' %}
+{% load static %}
+{% block content %}
+    <div style="height:10vh"></div>
+    <div class="card-box">
+        <div style="text-align: center;" class="row">
+            {% for content_type in object_list %}
+                <div class="file-man-box">
+                    <a href="{{content_type.get_absolute_url}}">
+                    <div class="file-img-box">
+                        {% static "" as baseUrl %}
+                        <img src="{{ baseUrl }}images/category.svg" alt="icon">
+                    </div>
+                    </a>
+                    <div class="file-man-title">
+                        <h5 class="mb-0 text-overflow">{{ content_type.name}}</h5>
+                    </div>
+                </div>
+
+                {% empty %}
+                <li>No Category yet.</li>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -42,14 +42,15 @@
                     {% for library in libraries %}
                         <li><a class="dropdown-item" href="{{ library.get_absolute_url }}">{{ library.name }}</a></li>
                     {% endfor %}
-
+                    <hr class="dropdown-divider" />
+                    <li><a class="dropdown-item" href="/libraries/create/">Create new Library</a></li>
                     <hr class="dropdown-divider" />
                     <li><a class="dropdown-item" href="/libraries/">Show All</a></li>
                 </ul>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="#">Categories</a>
+                <a class="nav-link" href="/my_content_types/">Categories</a>
             </li>
 
         </ul>

@@ -56,7 +56,7 @@ body{
     color: #313a46
 }
 
-.file-man-box .file-man-title {
+.file-man-box .file-man-title .h5 {
     padding-right: 25px
 }
 
@@ -77,4 +77,5 @@ body{
 }
 h5 {
     font-size: 15px;
+
 }

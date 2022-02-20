@@ -80,6 +80,9 @@ class Content(Model):
     def filename(self):
         return os.path.basename(self.file.name)
 
+    def get_absolute_url(self):
+        return reverse('libcloud:each_content_type', kwargs={'pk': self.pk})
+
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
@@ -97,7 +100,7 @@ def get_attachment_upload_path(instance, filename):
 
 class Attachment(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
-    type = models.IntegerField()
+    type = models.ForeignKey(AttachmentType, on_delete=models.CASCADE)
     file = models.FileField(upload_to=get_attachment_upload_path)
 
     def save(self, *args, **kwargs):
