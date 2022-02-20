@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
-from django.db.models import Q, Count
+from django.db.models import Q,Count
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
@@ -35,11 +35,11 @@ def homePageView(request):
         filter_lib = filter_lib | Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-            .order_by('-q_count')
+                                 .order_by('-q_count')[:3]
         context.update({'files': files,
-                        'libraries': libs})
-    return render(request=request, template_name='libcloud/intro.html', context=context)
+                        'libraries' : libs})
 
+    return render(request=request, template_name='libcloud/intro.html',context = context)
 
 def register_request(request):
     if request.method == "POST":
@@ -198,14 +198,16 @@ class AllLibrariesView(ListView):
         return Library.objects.filter(user=self.request.user)
 
 
+
+
 class EachLibraryView(DetailView):
     model = Library
-
     def get_queryset(self):
         return Library.objects.filter(user=self.request.user)
 
 
 class LibraryCreateView(CreateView):
+
     model = Library
     fields = ['name', 'content_type']
 
@@ -237,6 +239,7 @@ class MyAttachmentTypeView(ListView):
 
 
 class AttachmentTypeCreateView(CreateView):
+
     model = AttachmentType
     fields = ['name']
 
@@ -250,6 +253,7 @@ class AttachmentTypeCreateView(CreateView):
 
 
 class ContentTypeCreateView(CreateView):
+
     model = ContentType
     fields = ['name']
 
@@ -260,4 +264,5 @@ class ContentTypeCreateView(CreateView):
 
 
 class EachContentTypeView(DetailView):
+
     model = ContentType
