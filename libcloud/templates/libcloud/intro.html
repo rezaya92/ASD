@@ -38,7 +38,7 @@
                         <h4 class="header-title m-b-30">Top Libraries:</h4>
                     </div>
                     <div class="row">
-                        {% for lib in libraries %}
+                        {% for lib in libraries|slice:":3"  %}
                             <div class="file-man-box">
                                 <a href="file_page/{{ lib.name }}">
                                 <div class="file-img-box">
@@ -47,7 +47,7 @@
                                     <a href={{ file.file.url }}></a>
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ lib.name }}</h5>
-                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type }}</h6>
+                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type.name }}</h6>
                                 </div>
 
                                 </a>
