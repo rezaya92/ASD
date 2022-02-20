@@ -179,6 +179,12 @@ def my_attachment_types(request):
         'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)})
 
 
+def my_content_types(request):
+    print(ContentType.objects.filter(user=request.user))
+    return render(request, 'libcloud/contenttype_list.html', {
+        'content_types': ContentType.objects.filter(user=request.user)})
+
+
 def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
