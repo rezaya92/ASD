@@ -11,6 +11,7 @@
 	});
 	$(".dropdown-menu > li > a:not(.trigger)").on("click",function(){
 		var root=$(this).closest('.dropdown');
+		window.location = $(this).attr("href");
 		root.find('.left-caret').toggleClass('right-caret left-caret');
 		root.find('.sub-menu:visible').hide();
 	});
