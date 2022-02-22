@@ -12,7 +12,7 @@ from django.db.models import Q, Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
 from libcloud.models import Content, Library, ContentType, AttachmentType
 from libcloud.models import ContentTypeFeature
@@ -276,3 +276,9 @@ class ContentTypeCreateView(CreateView):
 class EachContentTypeView(DetailView):
 
     model = ContentType
+
+
+class LibraryChoiceView(UpdateView):
+
+    model = Content
+    fields = ['library']
