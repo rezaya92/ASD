@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.conf import settings
-from libcloud.models import Content, ContentFeature, Attachment
+from libcloud.models import Content, ContentFeature, Attachment ,ContentType,AttachmentType
 
 test_media_root = os.path.join(settings.BASE_DIR, 'test_media/')
 
@@ -15,7 +15,7 @@ test_media_root = os.path.join(settings.BASE_DIR, 'test_media/')
 class ContentModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-
+        self.content_type = ContentType.objects.create(user=self.user, name='type1')
         self.content_file = SimpleUploadedFile('temp.txt', b"Test File")
         super().setUp()
 
@@ -25,12 +25,13 @@ class ContentModelTest(TestCase):
         super().tearDown()
 
     def test_correct_content_create(self):
-        Content.objects.create(creator=self.user, type=Content.ContentType.Text,
+
+        Content.objects.create(creator=self.user, type=self.content_type,
                                file=self.content_file)
 
     def test_content_create_with_null_creator(self):
         with self.assertRaises(ValidationError):
-            Content.objects.create(type=Content.ContentType.Text, file=self.content_file)
+            Content.objects.create(type=self.content_type , file=self.content_file)
 
     def test_content_create_with_null_type(self):
         with self.assertRaises(ValidationError):
@@ -38,15 +39,15 @@ class ContentModelTest(TestCase):
 
     def test_content_create_with_null_file(self):
         with self.assertRaises(ValidationError):
-            Content.objects.create(creator=self.user, type=Content.ContentType.Text)
+            Content.objects.create(creator=self.user, type=self.content_type)
 
 
 @override_settings(MEDIA_ROOT=test_media_root)
 class ContentFeatureModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-
-        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Text,
+        self.content_type = ContentType.objects.create(user=self.user, name='type1')
+        self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
         super().setUp()
 
@@ -82,9 +83,11 @@ class ContentFeatureModelTest(TestCase):
 class AttachmentModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-
-        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Video,
+        self.content_type = ContentType.objects.create(user=self.user, name='type1')
+        self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('vid.mp4', b"3242"))
+
+        self.attachtype= AttachmentType.objects.create(user=self.user , name= "attachtype1")
 
         self.attachment_file = SimpleUploadedFile('attachment.txt', b"Hello")
         super().setUp()
@@ -95,7 +98,7 @@ class AttachmentModelTest(TestCase):
         super().tearDown()
 
     def test_correct_attachment_create(self):
-        Attachment.objects.create(content=self.content, type=Attachment.AttachmentType.Subtitle,
+        Attachment.objects.create(content=self.content, type=self.attachtype,
                                   file=self.attachment_file)
 
     def test_attachment_create_with_null_type(self):
@@ -104,10 +107,10 @@ class AttachmentModelTest(TestCase):
 
     def test_attachment_create_with_null_file(self):
         with self.assertRaises(ValidationError):
-            Attachment.objects.create(content=self.content, type=Attachment.AttachmentType.Subtitle)
+            Attachment.objects.create(content=self.content, type=self.attachtype)
 
     def test_content_delete_cascade(self):
-        attachment = Attachment.objects.create(content=self.content, type=Attachment.AttachmentType.Subtitle,
+        attachment = Attachment.objects.create(content=self.content, type=self.attachtype,
                                                file=self.attachment_file)
 
         self.content.delete()
@@ -207,8 +210,8 @@ class LoginTest(BaseTest):
 class DownloadFileTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-
-        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Text,
+        self.content_type = ContentType.objects.create(user=self.user, name='type1')
+        self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
 
         super().setUp()
@@ -239,8 +242,8 @@ class DownloadFileTest(TestCase):
 class FilePageTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-
-        self.content = Content.objects.create(creator=self.user, type=Content.ContentType.Text,
+        self.content_type= ContentType.objects.create(user=self.user , name='type1')
+        self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
 
         self.file_page_url = '/file_page'
