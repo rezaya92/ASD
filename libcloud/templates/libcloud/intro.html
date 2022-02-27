@@ -1,5 +1,35 @@
 {% extends 'libcloud/base.html' %}
 {% load static %}
+{% block navitem %}
+    <!-- Button trigger modal -->
+<li class="nav-item" type="button"   data-bs-toggle="modal" data-bs-target="#exampleModal">
+    <a class="nav-link"> Web Theme</a>
+</li>
+
+<div style="background-color: transparent" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div style="background-color: white" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">change background color</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="colors">
+    <span class="btn" style="background-color: gray;"></span>
+    <span class="btn" style="background-color: #66f7ff;"></span>
+    <span class="btn" style="background-color: #ff00f5;"></span>
+    <span class="btn" style="background-color: #fefdff;"></span>
+    <span class="btn" style="background-color: #000000;"></span>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
 {% block content %}
     {% if not user.is_authenticated %}
     <div class="bg-image d-flex justify-content-center align-items-center" style="height: 100vh">
@@ -38,16 +68,16 @@
                         <h4 class="header-title m-b-30">Top Libraries:</h4>
                     </div>
                     <div class="row">
-                        {% for lib in libraries %}
+                        {% for lib in libraries|slice:":3"  %}
                             <div class="file-man-box">
-                                <a href="file_page/{{ lib.name }}">
+                                <a href="{{ lib.get_absolute_url}}">
                                 <div class="file-img-box">
                                     {% static "" as baseUrl %}
                                     <img src="{{ baseUrl }}images/lib.png" alt="icon"></div>
-                                    <a href={{ file.file.url }}></a>
+                                    <a href={{ lib.get_absolute_url}}></a>
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ lib.name }}</h5>
-                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type }}</h6>
+                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type.name }}</h6>
                                 </div>
 
                                 </a>
