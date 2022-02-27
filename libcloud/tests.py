@@ -269,3 +269,26 @@ class FilePageTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     # TODO
+
+
+class AttachmentTypeTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email='testemail@gmail.com', username='username', password='123')
+        self.attachment_types_url = '/my_attachment_types/'
+        self.attachment_type1 = AttachmentType.objects.create(user=self.user, name="a_type1")
+        self.attachment_type2 = AttachmentType.objects.create(user=self.user, name="a_type2")
+        self.client.login(username='username', password='123')
+
+    def test_my_attachment_types_success(self):
+        response = self.client.get(self.attachment_types_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['attachment_types'].count(), 2)
+        self.assertEqual(response.context['attachment_types'][0].name, self.attachment_type1.name)
+        self.assertEqual(response.context['attachment_types'][1].name, self.attachment_type2.name)
+
+    def test_create_attachment_type(self):
+        response = self.client.post(self.attachment_types_url, {"name": "a_type3"}, format='text/html')
+        self.assertEqual(response.status_code, 200)
+        attachment_types = self.user.attachmenttype_set.all()
+        self.assertEqual(attachment_types.count(), 3)
+        self.assertEqual(attachment_types[2].name, "a_type3")
