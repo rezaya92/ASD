@@ -7,14 +7,15 @@ from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
-from django.db.models import Q,Count
+from django.db.models import Q, Count
 from django.forms import formset_factory
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.conf import settings
-from libcloud.models import Content, Attachment, ContentTypeFeature
-from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
+from libcloud.models import Content, Attachment, ContentTypeFeature, ContentFeature
+from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm, ContentForm, \
+    ContentFeatureFormset
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
 
@@ -35,11 +36,12 @@ def homePageView(request):
         filter_lib = filter_lib | Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-                                 .order_by('-q_count')[:3]
+                   .order_by('-q_count')[:3]
         context.update({'files': files,
-                        'libraries' : libs})
+                        'libraries': libs})
 
-    return render(request=request, template_name='libcloud/intro.html',context = context)
+    return render(request=request, template_name='libcloud/intro.html', context=context)
+
 
 def register_request(request):
     if request.method == "POST":
@@ -126,8 +128,46 @@ def download_file(request, user_prefix, filename):
 
 
 @login_required
-def upload_file(request):
-    pass
+def create_content(request, content_type_pk):
+    print(content_type_pk)
+    content_type_pk = int(content_type_pk)
+    if request.method == "POST":
+        print(request.POST)
+        form = ContentTypeForm(request.POST, initial={'user': request.user}, prefix='content-type')
+        formset = ContentTypeFeatureFormset(request.POST, prefix="feature")
+
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    content_type = form.save(commit=True)
+                    form.save_m2m()
+                    print(content_type.attachment_types.all())
+                    for form1 in formset:
+                        content_type_feature = form1.save(commit=False)
+                        content_type_feature.content_type = content_type
+                        content_type_feature.save()
+            except Exception as e:
+                messages.error(request, e)
+                redirect("libcloud:create_content_type")
+        else:
+            messages.error(request, form.errors)
+            messages.error(request, formset.errors)
+            redirect("libcloud:create_content_type")
+    form = None
+    if content_type_pk != -1:
+        content_type = ContentType.objects.get(id=content_type_pk)
+        form = ContentForm(prefix='content', user=request.user,
+                           initial={'type': content_type})
+        formset_features = ContentFeatureFormset(queryset=content_type.contenttypefeature_set.all(),
+                                                 prefix="feature")
+        for form1 in formset_features:
+            print(form1.as_table())
+        return render(request, 'libcloud/content_form.html', {
+            'form': form, 'formset_features': formset_features, 'formset_attachments': None})
+    else:
+        form = ContentForm(prefix='content', user=request.user)
+        return render(request, 'libcloud/content_form.html', {
+            'form': form, 'formset_features': None, 'formset_attachments': None})
 
 
 @login_required
@@ -198,16 +238,14 @@ class AllLibrariesView(ListView):
         return Library.objects.filter(user=self.request.user)
 
 
-
-
 class EachLibraryView(DetailView):
     model = Library
+
     def get_queryset(self):
         return Library.objects.filter(user=self.request.user)
 
 
 class LibraryCreateView(CreateView):
-
     model = Library
     fields = ['name', 'content_type']
 
@@ -239,7 +277,6 @@ class MyAttachmentTypeView(ListView):
 
 
 class AttachmentTypeCreateView(CreateView):
-
     model = AttachmentType
     fields = ['name']
 
@@ -253,7 +290,6 @@ class AttachmentTypeCreateView(CreateView):
 
 
 class ContentTypeCreateView(CreateView):
-
     model = ContentType
     fields = ['name']
 
@@ -264,5 +300,4 @@ class ContentTypeCreateView(CreateView):
 
 
 class EachContentTypeView(DetailView):
-
     model = ContentType
