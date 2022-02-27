@@ -43,7 +43,7 @@ class ContentType(Model):
 
 class ContentTypeFeature(Model):
     class FeatureType(models.IntegerChoices):
-        number = 1
+        Number = 1
         String = 2
         Boolean = 3
         # TODO
@@ -71,7 +71,7 @@ class Content(Model):
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     file = models.FileField(upload_to=get_content_upload_path)
-    library = models.ForeignKey(to=Library, on_delete=models.CASCADE, null=True, blank=True)
+    library = models.ForeignKey(to=Library, on_delete=models.SET_NULL, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -86,7 +86,7 @@ class Content(Model):
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    feature_type = models.ForeignKey(ContentTypeFeature, on_delete=models.CASCADE, null=True)
     value = models.CharField(max_length=100)
 
     def save(self, *args, **kwargs):
