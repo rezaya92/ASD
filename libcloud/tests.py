@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.conf import settings
-from libcloud.models import Content, ContentFeature, Attachment ,ContentType,AttachmentType
+from libcloud.models import Content, ContentFeature, Attachment, ContentType, AttachmentType, ContentTypeFeature
 
 test_media_root = os.path.join(settings.BASE_DIR, 'test_media/')
 
@@ -25,13 +25,12 @@ class ContentModelTest(TestCase):
         super().tearDown()
 
     def test_correct_content_create(self):
-
         Content.objects.create(creator=self.user, type=self.content_type,
                                file=self.content_file)
 
     def test_content_create_with_null_creator(self):
         with self.assertRaises(ValidationError):
-            Content.objects.create(type=self.content_type , file=self.content_file)
+            Content.objects.create(type=self.content_type, file=self.content_file)
 
     def test_content_create_with_null_type(self):
         with self.assertRaises(ValidationError):
@@ -47,6 +46,10 @@ class ContentFeatureModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
         self.content_type = ContentType.objects.create(user=self.user, name='type1')
+        self.feature_type = ContentTypeFeature.objects.create(content_type=self.content_type,
+                                                              name="abc",
+                                                              type=ContentTypeFeature.FeatureType.Number,
+                                                              required=True)
         self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
         super().setUp()
@@ -57,22 +60,22 @@ class ContentFeatureModelTest(TestCase):
         super().tearDown()
 
     def test_correct_content_feature_create(self):
-        ContentFeature.objects.create(content=self.content, name="abc", value="x")
+        ContentFeature.objects.create(content=self.content, feature_type=self.feature_type, value="1")
 
     def test_content_feature_create_with_null_content(self):
         with self.assertRaises(ValidationError):
-            ContentFeature.objects.create(name="abc", value="x")
+            ContentFeature.objects.create(feature_type=self.feature_type, value="1")
 
-    def test_content_feature_create_with_null_name(self):
+    def test_content_feature_create_with_null_feature_type(self):
         with self.assertRaises(ValidationError):
-            ContentFeature.objects.create(content=self.content, value="x")
+            ContentFeature.objects.create(content=self.content, value="1")
 
     def test_content_feature_create_with_null_value(self):
         with self.assertRaises(ValidationError):
-            ContentFeature.objects.create(content=self.content, name="abc")
+            ContentFeature.objects.create(content=self.content, feature_type=self.feature_type)
 
     def test_content_delete_cascade(self):
-        feature = ContentFeature.objects.create(content=self.content, name="abc", value="x")
+        feature = ContentFeature.objects.create(content=self.content, feature_type=self.feature_type, value="1")
 
         self.content.delete()
         with self.assertRaises(ContentFeature.DoesNotExist):
@@ -87,7 +90,7 @@ class AttachmentModelTest(TestCase):
         self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('vid.mp4', b"3242"))
 
-        self.attachtype= AttachmentType.objects.create(user=self.user , name= "attachtype1")
+        self.attachtype = AttachmentType.objects.create(user=self.user, name="attachtype1")
 
         self.attachment_file = SimpleUploadedFile('attachment.txt', b"Hello")
         super().setUp()
@@ -154,56 +157,62 @@ class BaseTest(TestCase):
         }
         return super().setUp()
 
+
 class RegisterTest(BaseTest):
-   def test_can_view_page_correctly(self):
-       response=self.client.get(self.register_url)
-       self.assertEqual(response.status_code,200)
-       self.assertTemplateUsed(response,'libcloud/register.html')
+    def test_can_view_page_correctly(self):
+        response = self.client.get(self.register_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'libcloud/register.html')
 
-   def test_can_register_user(self):
-        response=self.client.post(self.register_url,self.user)
-        self.assertEqual(response.status_code,302)
+    def test_can_register_user(self):
+        response = self.client.post(self.register_url, self.user)
+        self.assertEqual(response.status_code, 302)
 
-   def test_cant_register_user_withshortpassword(self):
-        response=self.client.post(self.register_url,self.user_short_password,format='text/html')
-        self.assertEqual(response.status_code,400)
+    def test_cant_register_user_withshortpassword(self):
+        response = self.client.post(self.register_url, self.user_short_password, format='text/html')
+        self.assertEqual(response.status_code, 400)
 
-   def test_cant_register_user_with_unmatching_passwords(self):
-        response=self.client.post(self.register_url,self.user_unmatching_password,format='text/html')
-        self.assertEqual(response.status_code,400)
-   def test_cant_register_user_with_invalid_email(self):
-        response=self.client.post(self.register_url,self.user_invalid_email,format='text/html')
-        self.assertEqual(response.status_code,400)
+    def test_cant_register_user_with_unmatching_passwords(self):
+        response = self.client.post(self.register_url, self.user_unmatching_password, format='text/html')
+        self.assertEqual(response.status_code, 400)
 
-   def test_cant_register_user_with_taken_email(self):
-        self.client.post(self.register_url,self.user,format='text/html')
-        response=self.client.post(self.register_url,self.user,format='text/html')
-        self.assertEqual(response.status_code,400)
+    def test_cant_register_user_with_invalid_email(self):
+        response = self.client.post(self.register_url, self.user_invalid_email, format='text/html')
+        self.assertEqual(response.status_code, 400)
+
+    def test_cant_register_user_with_taken_email(self):
+        self.client.post(self.register_url, self.user, format='text/html')
+        response = self.client.post(self.register_url, self.user, format='text/html')
+        self.assertEqual(response.status_code, 400)
+
 
 class LoginTest(BaseTest):
     def test_can_access_page(self):
-        response=self.client.get(self.login_url)
-        self.assertEqual(response.status_code,200)
-        self.assertTemplateUsed(response,'libcloud/login.html')
+        response = self.client.get(self.login_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'libcloud/login.html')
+
     def test_login_success(self):
-        self.client.post(self.register_url,self.user,format='text/html')
-        response= self.client.post(self.login_url,{
-            'username':  self.user.get('username'),
-            'password': self.user.get('password1')},format='text/html')
-        self.assertEqual(response.status_code,302)
+        self.client.post(self.register_url, self.user, format='text/html')
+        response = self.client.post(self.login_url, {
+            'username': self.user.get('username'),
+            'password': self.user.get('password1')}, format='text/html')
+        self.assertEqual(response.status_code, 302)
+
     def test_cantlogin_with_unverified_email(self):
-        self.client.post(self.register_url,self.user,format='text/html')
+        self.client.post(self.register_url, self.user, format='text/html')
         response = self.client.post(self.login_url, {
             'username': 'wrong',
             'password': 'wrong'}, format='text/html')
-        self.assertEqual(response.status_code,401)
+        self.assertEqual(response.status_code, 401)
 
     def test_cantlogin_with_no_username(self):
-        response= self.client.post(self.login_url,{'password':'passwped','username':''},format='text/html')
-        self.assertEqual(response.status_code,401)
+        response = self.client.post(self.login_url, {'password': 'passwped', 'username': ''}, format='text/html')
+        self.assertEqual(response.status_code, 401)
+
     def test_cantlogin_with_no_password(self):
-        response= self.client.post(self.login_url,{'username':'passwped','password':''},format='text/html')
-        self.assertEqual(response.status_code,401)
+        response = self.client.post(self.login_url, {'username': 'passwped', 'password': ''}, format='text/html')
+        self.assertEqual(response.status_code, 401)
 
 
 @override_settings(MEDIA_ROOT=test_media_root)
@@ -242,7 +251,7 @@ class DownloadFileTest(TestCase):
 class FilePageTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
-        self.content_type= ContentType.objects.create(user=self.user , name='type1')
+        self.content_type = ContentType.objects.create(user=self.user, name='type1')
         self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
 
@@ -260,4 +269,3 @@ class FilePageTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     # TODO
-
