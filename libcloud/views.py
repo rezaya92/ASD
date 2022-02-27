@@ -216,6 +216,7 @@ def create_content_type(request):
         'form': form, 'formset': formset})
 
 
+@login_required
 def my_attachment_types(request):
     if request.method == "POST":
         print(request.POST)
@@ -230,7 +231,7 @@ def my_attachment_types(request):
             messages.error(request, form.errors)
     form = AttachmentTypeForm()
     return render(request, 'libcloud/attachmenttype_list.html', {
-        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)})
+        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)}, status=200)
 
 
 def my_content_types(request):
