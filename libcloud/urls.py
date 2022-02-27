@@ -1,5 +1,5 @@
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, re_path
 
 from ASD import settings
 from . import views
@@ -12,7 +12,7 @@ urlpatterns = [
     path("login/", views.login_request, name="login"),
     path("logout/", views.logout_request, name="logout"),
     path("file_page/<path:filename>", views.file_page, name="file_page"),
-    path("upload_file", views.upload_file, name="upload_file"),
+    re_path(r'^content/create/(?P<content_type_pk>([+\-])?\d+)/$', views.create_content, name="create_content"),
     path(settings.MEDIA_URL + "<str:user_prefix>/<str:filename>", views.download_file, name="download_file"),
     path("libraries/", views.AllLibrariesView.as_view(), name="all_libraries"),
     path("libraries/<int:pk>/", views.EachLibraryView.as_view(), name="each_library"),
