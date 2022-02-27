@@ -1,0 +1,27 @@
+
+{% extends 'libcloud/base.html' %}
+{% load static %}
+{% block content %}
+    <div style="height:10vh"></div>
+    <div class="card-box">
+        <div style="text-align: center;" class="row">
+            {% for library in object_list %}
+
+                <div class="file-man-box">
+                    <a href="{{library.get_absolute_url}}">
+                    <div class="file-img-box">
+                        {% static "" as baseUrl %}
+                        <img src="{{ baseUrl }}images/lib.png" alt="icon">
+                    </div>
+                    </a>
+                    <div class="file-man-title">
+                        <h5 class="mb-0 text-overflow">{{ library.name }}</h5>
+                    </div>
+                </div>
+
+                {% empty %}
+                <li>No libraries yet.</li>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

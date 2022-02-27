@@ -1,31 +1,56 @@
-import json
+import mimetypes
 import mimetypes
 import os
 
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.files import File
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.forms import formset_factory
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
-
 from django.conf import settings
-from libcloud.models import Content, Attachment
-from .forms import NewUserForm
-from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
+from django.db.models import Q, Count
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
+
+from libcloud.models import Content, Library, ContentType, AttachmentType
+from libcloud.models import ContentTypeFeature
+from .forms import ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
+from .forms import NewUserForm
 
 
-def homePageView(request):
-    context = {}
-    context.update({'files': get_files()})
+def home_page_view(request):
+    context = {'1':'1',
+               '2':'2'}
+    current_user = request.user
+    if request.user.is_authenticated:
+        filter_file = Q()
+        filter_lib = Q()
+        filter_file |= Q(creator=current_user)
+        filter_lib |= Q(user=current_user)
+        files = Content.objects.filter(filter_file).order_by('-id')[:5]
+        libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
+                                 .order_by('-q_count')
+        context.update({'files': files,
+                        'libraries' : libs})
+
     return render(request=request, template_name='libcloud/intro.html',context = context)
 
-def get_files():
-    files = Content.objects.order_by('creator')[:1]
-    return files
+
+def get_lib(request):
+    context = {}
+    context.update({'1':'1',
+               '2':'2'})
+    current_user = request.user
+    if request.user.is_authenticated:
+        filter_lib = Q()
+        filter_lib |= Q(user=current_user)
+        libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
+                   .order_by('-q_count')
+        context.update({'libraries': libs})
+    return context
+
 
 def register_request(request):
     if request.method == "POST":
@@ -41,7 +66,7 @@ def register_request(request):
         return render(request=request, template_name='libcloud/register.html', context={"register_form": form},
                       status=400)
     form = NewUserForm()
-    return render(request=request, template_name='libcloud/register.html', context={"register_form": form} ,status=200)
+    return render(request=request, template_name='libcloud/register.html', context={"register_form": form}, status=200)
 
 
 def login_request(request):
@@ -57,10 +82,12 @@ def login_request(request):
                 return redirect("/")
             else:
                 messages.error(request, "Invalid username or password.")
-                return render(request=request, template_name="libcloud/login.html", context={"login_form": form},status=401)
+                return render(request=request, template_name="libcloud/login.html", context={"login_form": form},
+                              status=401)
         else:
             messages.error(request, "Invalid username or password.")
-            return render(request=request, template_name="libcloud/login.html", context={"login_form": form} ,status=401)
+            return render(request=request, template_name="libcloud/login.html", context={"login_form": form},
+                          status=401)
     form = AuthenticationForm()
     return render(request=request, template_name="libcloud/login.html", context={"login_form": form})
 
@@ -114,7 +141,144 @@ def upload_file(request):
     pass
 
 
+@login_required
+def create_content_type(request):
+    if request.method == "POST":
+        print(request.POST)
+        form = ContentTypeForm(request.POST, initial={'user': request.user}, prefix='content-type')
+        formset = ContentTypeFeatureFormset(request.POST, prefix="feature")
+
+        if form.is_valid() and formset.is_valid():
+            try:
+                with transaction.atomic():
+                    content_type = form.save(commit=True)
+                    form.save_m2m()
+                    print(content_type.attachment_types.all())
+                    for form1 in formset:
+                        content_type_feature = form1.save(commit=False)
+                        content_type_feature.content_type = content_type
+                        content_type_feature.save()
+            except Exception as e:
+                messages.error(request, e)
+                redirect("libcloud:create_content_type")
+        else:
+            messages.error(request, form.errors)
+            messages.error(request, formset.errors)
+            redirect("libcloud:create_content_type")
+    form = ContentTypeForm(prefix='content-type', initial={'user': request.user})
+    formset = ContentTypeFeatureFormset(queryset=ContentTypeFeature.objects.none(), prefix="feature")
+    for form1 in formset:
+        print(form1.as_table())
+    return render(request, 'libcloud/contenttype_form.html', {
+        'form': form, 'formset': formset})
+
+
+def my_attachment_types(request):
+    if request.method == "POST":
+        print(request.POST)
+        form = AttachmentTypeForm(request.POST)
+
+        if form.is_valid():
+            attachment_type = form.save(commit=False)
+            attachment_type.user = request.user
+            attachment_type.save()
+            messages.info(request, f"attachment type {attachment_type.name} has been created")
+        else:
+            messages.error(request, form.errors)
+    form = AttachmentTypeForm()
+    return render(request, 'libcloud/attachmenttype_list.html', {
+        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)})
+
+
+def my_content_types(request):
+    print(ContentType.objects.filter(user=request.user))
+    return render(request, 'libcloud/contenttype_list.html', {
+        'content_types': ContentType.objects.filter(user=request.user)})
+
+
 def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect("/")
+
+
+class AllLibrariesView(ListView):
+    model = Library
+
+    def get_queryset(self):
+        return Library.objects.filter(user=self.request.user)
+
+
+class EachLibraryView(DetailView):
+    model = Library
+
+    def get_queryset(self):
+        return Library.objects.filter(user=self.request.user)
+
+
+class LibraryCreateView(CreateView):
+
+    model = Library
+    fields = ['name', 'content_type']
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(LibraryCreateView, self).form_valid(form)
+
+
+class MyContentView(ListView):
+    model = Content
+
+    def get_queryset(self):
+        return Content.objects.filter(creator=self.request.user)
+
+
+class MyContentTypeView(ListView):
+    model = ContentType
+
+    def get_queryset(self):
+        return ContentType.objects.filter(user=self.request.user)
+
+
+class MyAttachmentTypeView(ListView):
+    model = AttachmentType
+
+    def get_queryset(self):
+        return AttachmentType.objects.filter(user=self.request.user)
+
+
+class AttachmentTypeCreateView(CreateView):
+
+    model = AttachmentType
+    fields = ['name']
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(AttachmentTypeCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('libcloud:my_attachment_types')
+
+
+class ContentTypeCreateView(CreateView):
+
+    model = ContentType
+    fields = ['name']
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.user = self.request.user
+        return super(ContentTypeCreateView, self).form_valid(form)
+
+
+class EachContentTypeView(DetailView):
+
+    model = ContentType
+
+
+class LibraryChoiceView(UpdateView):
+
+    model = Content
+    fields = ['library']

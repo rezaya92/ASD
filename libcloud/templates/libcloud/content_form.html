@@ -1,0 +1,32 @@
+{% extends 'libcloud/base.html' %}
+{% block content %}
+<div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="w-75">
+                    <div class="card-box">
+                        <div class="row">
+                            <form class="justify-content-center" method="POST">
+                                {% csrf_token %}
+                                <div class="row mb-3 justify-content-center">
+                                    <div class="text-center w-25">
+                                        {{ form.as_p }}
+                                    </div>
+                                </div>
+
+                                <div class="row justify-content-center">
+                                    <div class="w-25">
+                                        <button type="submit" class="btn btn-block btn-primary">Create</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
+        </div>
+        <!-- container -->
+    </div>
+{% endblock %}

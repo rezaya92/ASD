@@ -66,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'libcloud.views.get_lib'
             ],
         },
     },
@@ -133,3 +134,5 @@ django_heroku.settings(locals(), test_runner=False)
 CSRF_TRUSTED_ORIGINS = [
     'https://libcloud.herokuapp.com'
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
