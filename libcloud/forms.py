@@ -5,9 +5,10 @@ from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 # Create your forms here.
-from django.forms import ModelForm, Form, formset_factory, inlineformset_factory, modelformset_factory, BaseModelFormSet
+from django.forms import ModelForm, Form, formset_factory, inlineformset_factory, modelformset_factory, \
+    BaseModelFormSet, Field, TextInput
 
-from libcloud.models import ContentType, ContentTypeFeature, AttachmentType
+from libcloud.models import ContentType, ContentTypeFeature, AttachmentType, Content, ContentFeature, Library
 
 
 class NewUserForm(UserCreationForm):
@@ -83,5 +84,60 @@ class AttachmentTypeForm(ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class ContentForm(ModelForm):
+    class Meta:
+        model = Content
+        fields = ("type", "file", "library")
+        labels = {
+            'type': _('Content type'),
+        }
+
+    prefix = 'content'
+
+    def __init__(self, *args, user, **kwargs, ):
+        super().__init__(*args, **kwargs)
+
+        self.user = user
+        self.fields['type'].queryset = ContentType.objects.filter(user=self.user)
+        self.fields['type'].label_from_instance = lambda obj: "%s" % obj.name
+
+        self.fields['library'].queryset = Library.objects.filter(user=self.user)
+        self.fields['library'].label_from_instance = lambda obj: "%s" % obj.name
+
+
+class ContentFeatureForm(ModelForm):
+    class Meta:
+        model = ContentTypeFeature
+        fields = ("name", "type", "required")
+
+    # name = forms.CharField(max_length=50)
+    prefix = 'feature'
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline justify-content-center'
+        self.helper.field_template = 'libcloud/layout/inline_field.html'
+        self.helper.form_tag = False
+        super().__init__(*args, **kwargs)
+
+        if self.instance.type == ContentTypeFeature.FeatureType.String:
+            self.fields["value"] = forms.CharField(max_length=50)
+        elif self.instance.type == ContentTypeFeature.FeatureType.Number:
+            self.fields["value"] = forms.CharField(max_length=50, widget=TextInput(attrs={'type':'number'}))
+        self.fields["value"].label = f"value({self.instance.get_type_display()})"
+        self.fields["name"].widget.attrs['readonly'] = True
+        self.fields["type"].widget.attrs['readonly'] = True
+        self.fields["required"].widget.attrs['readonly'] = True
+
+class BaseFeatureFormset(BaseModelFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.feature_types = kwargs['feature_types']
+
+
 ContentTypeFeatureFormset = modelformset_factory(ContentTypeFeature, form=ContentTypeFeatureForm, extra=1,
                                                  absolute_max=20, max_num=20)
+
+ContentFeatureFormset = modelformset_factory(ContentTypeFeature, form=ContentFeatureForm,
+                                             extra=0,
+                                             absolute_max=20, max_num=20)
