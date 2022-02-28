@@ -5,17 +5,29 @@
 {% load crispy_forms_utils %}
 
 {% block content %}
+    {% for form1 in formset_attachments %}
+        <div class="form-row justify-content-center d-none">
+            {% for field in form1 %}
+                {{ field|as_crispy_field }}
+                <div class="form-group mr-2"></div>
+            {% endfor %}
+            <div class="form-group">
+                <button class="btn btn-danger remove-form-row">-</button>
+            </div>
+        </div>
+    {% endfor %}
+
     <div class="content">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="w-75">
                     <div class="card-box">
                         <div class="row">
-                            <form class="justify-content-center" method="POST">
+                            <form class="justify-content-center" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {% for field in form %}
                                     <div class="row mb-3 justify-content-center">
-                                        <div class="text-center w-25">
+                                        <div class="text-center w-50">
                                             {{ field|as_crispy_field }}
                                         </div>
                                     </div>
@@ -23,14 +35,41 @@
                                 <div style="background: #DCDCDC" class="py-3">
                                     <h4 class="header-title text-center pb-2">features</h4>
                                     {{ formset_features.management_form }}
-                                    {% for form1 in formset_features %}
-                                        <div class="form-row justify-content-center">
-                                            {% for field in form1 %}
-                                                {{ field|as_crispy_field }}
-                                                <div class="form-group mr-2"></div>
+                                    <div class="row justify-content-center">
+                                        <table class="w-auto">
+                                            {% for form1 in formset_features %}
+                                                {{ form1.id }}
+                                                <tr>
+                                                    <td>
+                                                        {{ form1.name|as_crispy_field }}
+                                                    </td>
+                                                    <td>
+                                                        {{ form1.type|as_crispy_field }}
+                                                    </td>
+                                                    <td>
+                                                        {{ form1.value|as_crispy_field }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-group"
+                                                             style="color: {% if form1.required.value == "Required" %}
+                                                                 red {% else %} green {% endif %}">
+                                                            {{ form1.required.value }}
+                                                            {{ form1.required }}
+                                                        </div>
+                                                    </td>
+                                                </tr>
                                             {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="py-3">
+                                    <h4 class="header-title text-center pb-2">attachments</h4>
+                                    {{ formset_attachments.management_form }}
+                                    <div class="form-row justify-content-center plus-row">
+                                        <div class="form-group">
+                                            <button class="btn btn-success add-form-row">+</button>
                                         </div>
-                                    {% endfor %}
+                                    </div>
                                 </div>
                                 <div class="row justify-content-center">
                                     <div class="w-25">
@@ -107,12 +146,12 @@
 
         $(document).on('click', '.add-form-row', function (e) {
             e.preventDefault();
-            cloneMore('.form-row:not(.d-none):last', 'feature');
+            cloneMore('.form-row:not(.d-none):last', 'attachment');
             return false;
         });
         $(document).on('click', '.remove-form-row', function (e) {
             e.preventDefault();
-            deleteForm('feature', $(this));
+            deleteForm('attachment', $(this));
             return false;
         });
 
@@ -121,7 +160,7 @@
         });
 
         $(document).ready(function () {
-            {#$('#id_' + "feature" + '-TOTAL_FORMS').val(0);#}
+            $('#id_' + "attachment" + '-TOTAL_FORMS').val(0);
         })
     </script>
 
