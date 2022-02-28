@@ -1,4 +1,3 @@
-import json
 import mimetypes
 import os
 
@@ -11,21 +10,16 @@ from django.db import transaction
 from django.db.models import Q, Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
-from django.conf import settings
-from libcloud.models import Content, Attachment, ContentTypeFeature, ContentFeature
-from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm, ContentForm, \
-    ContentFeatureFormset, ContentFeatureForm, AttachmentFormset
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
+from libcloud.models import Attachment
 from libcloud.models import Content, Library, ContentType, AttachmentType
 from libcloud.models import ContentTypeFeature
+from .forms import ContentForm, \
+    ContentFeatureFormset, AttachmentFormset
 from .forms import ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
 from .forms import NewUserForm
-from django.contrib.auth import login, authenticate, logout
-from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
 
 
 def home_page_view(request):
