@@ -4,18 +4,27 @@
     {{ field }}
 {% else %}
     {% if field|is_checkbox %}
-        <div id="div_{{ field.auto_id }}" class="form-group align-self-center {% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+        <div id="div_{{ field.auto_id }}"
+             class="form-group align-self-center {% if wrapper_class %} {{ wrapper_class }}{% endif %}">
             <label for="{{ field.id_for_label }}" class="mb-0{% if field.field.required %} requiredField{% endif %}">
                 {% crispy_field field 'class' 'checkbox' %}
                 {{ field.label|safe }}
             </label>
         </div>
     {% else %}
-        <div id="div_{{ field.auto_id }}" class="form-group align-self-center {% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+        <div id="div_{{ field.auto_id }}"
+             class="form-group align-self-center text-center {% if wrapper_class %} {{ wrapper_class }}{% endif %}">
             <label for="{{ field.id_for_label }}" class="sr-only{% if field.field.required %} requiredField{% endif %}">
                 {{ field.label|safe }}
             </label>
-            {% crispy_field field 'placeholder' field.label %}
+            <div class="controls {{ field_class }}">
+                {% if field|is_multivalue %}
+                    {% crispy_field field 'placeholder' field.label %}
+                {% else %}
+                    {% crispy_field field 'class' 'form-control' 'placeholder' field.label %}
+                {% endif %}
+                {% include 'bootstrap3/layout/help_text_and_errors.html' %}
+            </div>
         </div>
     {% endif %}
 {% endif %}
