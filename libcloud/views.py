@@ -195,7 +195,7 @@ def create_content(request, content_type_pk=-1):
     else:
         form = ContentForm(prefix='content', user=request.user)
         return render(request, 'libcloud/content_form.html', {
-            'form': form, 'formset_features': None, 'formset_attachments': None})
+            'form': form, 'formset_features': None, 'formset_attachments': None}, status=200)
 
 
 @login_required

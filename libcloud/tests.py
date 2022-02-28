@@ -6,7 +6,8 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.conf import settings
-from libcloud.models import Content, ContentFeature, Attachment, ContentType, AttachmentType, ContentTypeFeature
+from libcloud.models import Content, ContentFeature, Attachment, ContentType, AttachmentType, ContentTypeFeature, \
+    Library
 
 test_media_root = os.path.join(settings.BASE_DIR, 'test_media/')
 
@@ -292,3 +293,39 @@ class AttachmentTypeTest(TestCase):
         attachment_types = self.user.attachmenttype_set.all()
         self.assertEqual(attachment_types.count(), 3)
         self.assertEqual(attachment_types[2].name, "a_type3")
+
+
+class CreateContentTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email='testemail@gmail.com', username='username', password='123')
+        self.create_content_url = '/content/create/'
+
+        self.content_type1 = ContentType.objects.create(user=self.user, name='c_type1')
+        self.content_type2 = ContentType.objects.create(user=self.user, name='c_type2')
+
+        self.library1 = Library.objects.create(user=self.user, name='lib1', content_type=self.content_type1)
+        self.library2 = Library.objects.create(user=self.user, name='lib2', content_type=self.content_type2)
+
+        self.client.login(username='username', password='123')
+
+    def test_content_create_page_data(self):
+        response = self.client.get(self.create_content_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].fields['type'].queryset.all().count(), 2)
+        self.assertEqual(response.context['form'].fields['type'].queryset[0].name, self.content_type1.name)
+
+        self.assertEqual(response.context['form'].fields['library'].queryset.all().count(), 2)
+        self.assertEqual(response.context['form'].fields['library'].queryset[0].name, self.library1.name)
+
+    def test_content_create_page_data_with_multiple_users(self):
+        user2 = User.objects.create_user(email='testemail2@gmail.com', username='username2', password='123456')
+        content_type1_user2 = ContentType.objects.create(user=user2, name='c_type1_user2')
+        library1_user2 = Library.objects.create(user=user2, name='lib1_user2', content_type=content_type1_user2)
+
+        response = self.client.get(self.create_content_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].fields['type'].queryset.all().count(), 2)
+        self.assertEqual(response.context['form'].fields['type'].queryset[0].name, self.content_type1.name)
+
+        self.assertEqual(response.context['form'].fields['library'].queryset.all().count(), 2)
+        self.assertEqual(response.context['form'].fields['library'].queryset[0].name, self.library1.name)
