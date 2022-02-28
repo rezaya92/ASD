@@ -2,14 +2,14 @@ import json
 import mimetypes
 import os
 
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.core.files import File
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
 from django.db.models import Q, Count
-from django.forms import formset_factory
-from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from django.conf import settings
@@ -17,43 +17,45 @@ from libcloud.models import Content, Attachment, ContentTypeFeature, ContentFeat
 from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm, ContentForm, \
     ContentFeatureFormset, ContentFeatureForm, AttachmentFormset
 from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
-from libcloud.models import Content, Attachment, Library, ContentType, AttachmentType
+from libcloud.models import Content, Library, ContentType, AttachmentType
+from libcloud.models import ContentTypeFeature
+from .forms import ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
 from .forms import NewUserForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 
 
-def homePageView(request):
-    context = {'1': '1',
-               '2': '2'}
+def home_page_view(request):
+    context = {'1':'1',
+               '2':'2'}
     current_user = request.user
     if request.user.is_authenticated:
         filter_file = Q()
         filter_lib = Q()
-        filter_file = filter_file | Q(creator=current_user)
-        filter_lib = filter_lib | Q(user=current_user)
+        filter_file |= Q(creator=current_user)
+        filter_lib |= Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-            .order_by('-q_count')
+                                 .order_by('-q_count')
         context.update({'files': files,
-                        'libraries': libs})
+                        'libraries' : libs})
 
-    return render(request=request, template_name='libcloud/intro.html', context=context)
+    return render(request=request, template_name='libcloud/intro.html',context = context)
 
 
 def get_lib(request):
     context = {}
-    context.update({'1': '1',
-                    '2': '2'})
+    context.update({'1':'1',
+               '2':'2'})
     current_user = request.user
     if request.user.is_authenticated:
         filter_lib = Q()
-        filter_lib = filter_lib | Q(user=current_user)
+        filter_lib |= Q(user=current_user)
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-            .order_by('-q_count')
+                   .order_by('-q_count')
         context.update({'libraries': libs})
     return context
 
@@ -334,3 +336,9 @@ class ContentTypeCreateView(CreateView):
 
 class EachContentTypeView(DetailView):
     model = ContentType
+
+
+class LibraryChoiceView(UpdateView):
+
+    model = Content
+    fields = ['library']

@@ -81,7 +81,7 @@ class Content(Model):
         return os.path.basename(self.file.name)
 
     def get_absolute_url(self):
-        return reverse('libcloud:each_content_type', kwargs={'pk': self.pk})
+        return reverse('libcloud:file_page', kwargs={'filename': self.file})
 
 
 class ContentFeature(Model):
