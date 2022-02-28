@@ -8,7 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from django.forms import ModelForm, Form, formset_factory, inlineformset_factory, modelformset_factory, \
     BaseModelFormSet, Field, TextInput
 
-from libcloud.models import ContentType, ContentTypeFeature, AttachmentType, Content, ContentFeature, Library
+from libcloud.models import ContentType, ContentTypeFeature, AttachmentType, Content, ContentFeature, Library, \
+    Attachment
 
 
 class NewUserForm(UserCreationForm):
@@ -67,6 +68,9 @@ class ContentTypeFeatureForm(ModelForm):
         self.helper.form_tag = False
         super().__init__(*args, **kwargs)
 
+        self.fields["name"].widget.attrs['required'] = 'required'
+        self.fields["type"].widget.attrs['required'] = 'required'
+
 
 class AttachmentTypeForm(ModelForm):
     class Meta:
@@ -104,13 +108,24 @@ class ContentForm(ModelForm):
         self.fields['library'].queryset = Library.objects.filter(user=self.user)
         self.fields['library'].label_from_instance = lambda obj: "%s" % obj.name
 
+    def save(self, commit=True):
+        content = super().save(commit=False)
+        content.creator = self.user
+        if commit:
+            content.save()
+        return content
+
 
 class ContentFeatureForm(ModelForm):
     class Meta:
         model = ContentTypeFeature
-        fields = ("name", "type", "required")
+        # exclude = ("name", "type", "required")
+        fields = ("id",)
 
-    # name = forms.CharField(max_length=50)
+    name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size': 8}))
+    type = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 5}))
+    required = forms.CharField(max_length=10, widget=forms.HiddenInput())
+    
     prefix = 'feature'
 
     def __init__(self, *args, **kwargs):
@@ -120,19 +135,53 @@ class ContentFeatureForm(ModelForm):
         self.helper.form_tag = False
         super().__init__(*args, **kwargs)
 
+        # if self.is_bound:
         if self.instance.type == ContentTypeFeature.FeatureType.String:
-            self.fields["value"] = forms.CharField(max_length=50)
+            self.fields["value"] = forms.CharField(max_length=50, required=self.instance.required)
+            # self.fields["value"].label = f"value ({self.instance.get_type_display()})"
         elif self.instance.type == ContentTypeFeature.FeatureType.Number:
-            self.fields["value"] = forms.CharField(max_length=50, widget=TextInput(attrs={'type':'number'}))
-        self.fields["value"].label = f"value({self.instance.get_type_display()})"
+            # self.fields["value"] = forms.CharField(max_length=50, widget=TextInput(attrs={'type':'number'}))
+            self.fields["value"] = forms.FloatField(required=self.instance.required)
+            # self.fields["value"].label = f"value ({self.instance.get_type_display()})"
+        elif self.instance.type == ContentTypeFeature.FeatureType.Boolean:
+            self.fields["value"] = forms.ChoiceField(choices=(('', '----'),
+                                                              ("1", "True"),
+                                                              ("2", "False")),
+                                                     required=self.instance.required)
+
         self.fields["name"].widget.attrs['readonly'] = True
         self.fields["type"].widget.attrs['readonly'] = True
         self.fields["required"].widget.attrs['readonly'] = True
 
-class BaseFeatureFormset(BaseModelFormSet):
-    def __init__(self, *args, **kwargs):
+        if self.instance.required:
+            self.fields["value"].widget.attrs['required'] = 'required'
+
+        self.fields["name"].initial = self.instance.name
+        self.fields["type"].initial = self.instance.get_type_display()
+        self.fields["required"].initial = "Required" if self.instance.required else " Optional"
+
+    def save(self, commit=True):
+        content_feature = ContentFeature(feature_type=self.instance, value=self.cleaned_data['value'])
+        return content_feature
+
+
+class AttachmentForm(ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ("type", "file")
+
+    prefix = 'attachment'
+
+    def __init__(self, *args, content_type, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-inline justify-content-center'
+        self.helper.field_template = 'libcloud/layout/inline_field.html'
+        self.helper.form_tag = False
         super().__init__(*args, **kwargs)
-        self.feature_types = kwargs['feature_types']
+
+        self.fields['type'].queryset = content_type.attachment_types.all()
+        self.fields["type"].widget.attrs['required'] = 'required'
+        self.fields["file"].widget.attrs['required'] = 'required'
 
 
 ContentTypeFeatureFormset = modelformset_factory(ContentTypeFeature, form=ContentTypeFeatureForm, extra=1,
@@ -141,3 +190,6 @@ ContentTypeFeatureFormset = modelformset_factory(ContentTypeFeature, form=Conten
 ContentFeatureFormset = modelformset_factory(ContentTypeFeature, form=ContentFeatureForm,
                                              extra=0,
                                              absolute_max=20, max_num=20)
+
+AttachmentFormset = modelformset_factory(Attachment, form=AttachmentForm, extra=1,
+                                         absolute_max=20, max_num=20)
