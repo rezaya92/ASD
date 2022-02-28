@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from libcloud.models import Content, Attachment, ContentTypeFeature, ContentFeature
 from .forms import NewUserForm, ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm, ContentForm, \
-    ContentFeatureFormset
+    ContentFeatureFormset, ContentFeatureForm, AttachmentFormset
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
 
@@ -27,8 +27,8 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 def homePageView(request):
-    context = {'1':'1',
-               '2':'2'}
+    context = {'1': '1',
+               '2': '2'}
     current_user = request.user
     if request.user.is_authenticated:
         filter_file = Q()
@@ -37,25 +37,26 @@ def homePageView(request):
         filter_lib = filter_lib | Q(user=current_user)
         files = Content.objects.filter(filter_file).order_by('-id')[:5]
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-                                 .order_by('-q_count')
+            .order_by('-q_count')
         context.update({'files': files,
-                        'libraries' : libs})
+                        'libraries': libs})
 
-    return render(request=request, template_name='libcloud/intro.html',context = context)
+    return render(request=request, template_name='libcloud/intro.html', context=context)
 
 
 def get_lib(request):
     context = {}
-    context.update({'1':'1',
-               '2':'2'})
+    context.update({'1': '1',
+                    '2': '2'})
     current_user = request.user
     if request.user.is_authenticated:
         filter_lib = Q()
         filter_lib = filter_lib | Q(user=current_user)
         libs = Library.objects.filter(filter_lib).annotate(q_count=Count('content')) \
-                   .order_by('-q_count')
+            .order_by('-q_count')
         context.update({'libraries': libs})
     return context
+
 
 def register_request(request):
     if request.method == "POST":
@@ -142,42 +143,59 @@ def download_file(request, user_prefix, filename):
 
 
 @login_required
-def create_content(request, content_type_pk):
-    print(content_type_pk)
+def create_content(request, content_type_pk=-1):
     content_type_pk = int(content_type_pk)
     if request.method == "POST":
-        print(request.POST)
-        form = ContentTypeForm(request.POST, initial={'user': request.user}, prefix='content-type')
-        formset = ContentTypeFeatureFormset(request.POST, prefix="feature")
+        # print(request.POST)
+        # print(request.FILES)
+        content_type = ContentType.objects.get(id=content_type_pk)
+        form = ContentForm(request.POST, request.FILES, prefix='content', user=request.user)
+        formset_features = ContentFeatureFormset(request.POST,
+                                                 prefix="feature")
+        formset_attachments = AttachmentFormset(request.POST, request.FILES,
+                                                prefix="attachment",
+                                                form_kwargs={'content_type': content_type})
 
-        if form.is_valid() and formset.is_valid():
+        if form.is_valid() and formset_features.is_valid() and formset_attachments.is_valid():
             try:
                 with transaction.atomic():
-                    content_type = form.save(commit=True)
-                    form.save_m2m()
-                    print(content_type.attachment_types.all())
-                    for form1 in formset:
-                        content_type_feature = form1.save(commit=False)
-                        content_type_feature.content_type = content_type
-                        content_type_feature.save()
+                    content = form.save(commit=True)
+                    for form1 in formset_features:
+                        if form1.instance.required or form1.cleaned_data['value'] != '':
+                            content_feature = form1.save(commit=False)
+                            content_feature.content = content
+                            content_feature.save()
+                    for form1 in formset_attachments:
+                        attachment = form1.save(commit=False)
+                        attachment.content = content
+                        attachment.save()
+                    messages.info(request, "content has been created.")
             except Exception as e:
                 messages.error(request, e)
-                redirect("libcloud:create_content_type")
+                redirect("libcloud:create_content")
+            pass
         else:
             messages.error(request, form.errors)
-            messages.error(request, formset.errors)
-            redirect("libcloud:create_content_type")
-    form = None
+            messages.error(request, formset_features.errors)
+            messages.error(request, formset_attachments.errors)
+            # for form1 in formset_features:
+            #     print(form1)
+            #     print(form1.data)
+            redirect("libcloud:create_content")
     if content_type_pk != -1:
         content_type = ContentType.objects.get(id=content_type_pk)
         form = ContentForm(prefix='content', user=request.user,
                            initial={'type': content_type})
         formset_features = ContentFeatureFormset(queryset=content_type.contenttypefeature_set.all(),
                                                  prefix="feature")
-        for form1 in formset_features:
-            print(form1.as_table())
+        formset_attachments = AttachmentFormset(queryset=Attachment.objects.none(),
+                                                prefix="attachment",
+                                                form_kwargs={'content_type': content_type})
+        # print(formset_features)
+        # for form1 in formset_features:
+        #     print(form1.as_table())
         return render(request, 'libcloud/content_form.html', {
-            'form': form, 'formset_features': formset_features, 'formset_attachments': None})
+            'form': form, 'formset_features': formset_features, 'formset_attachments': formset_attachments})
     else:
         form = ContentForm(prefix='content', user=request.user)
         return render(request, 'libcloud/content_form.html', {
