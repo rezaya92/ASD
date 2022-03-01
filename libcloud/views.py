@@ -168,11 +168,11 @@ def create_content(request, content_type_pk=-1):
         # print(formset_features)
         # for form1 in formset_features:
         #     print(form1.as_table())
-        return render(request, 'libcloud/content_form.html', {
+        return render(request, 'libcloud/upload_form.html', {
             'form': form, 'formset_features': formset_features, 'formset_attachments': formset_attachments})
     else:
         form = ContentForm(prefix='content', user=request.user)
-        return render(request, 'libcloud/content_form.html', {
+        return render(request, 'libcloud/upload_form.html', {
             'form': form, 'formset_features': None, 'formset_attachments': None}, status=200)
 
 
