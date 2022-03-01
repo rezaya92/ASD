@@ -368,11 +368,11 @@ class AttachmentForm(forms.ModelForm):
         fields = ['type', 'file']
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+        content_type = kwargs.pop('content_type')
         self.helper = FormHelper()
         self.helper.form_tag = False
         super(AttachmentForm, self).__init__(*args, **kwargs)
-        self.fields['type'].queryset = AttachmentType.objects.filter(user=user)
+        self.fields['type'].queryset = content_type.attachment_types.all()
 
 
 class AttachmentCreateView(CreateView):
@@ -382,7 +382,7 @@ class AttachmentCreateView(CreateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
+        kwargs['content_type'] = Content.objects.get(pk=self.kwargs["content_pk"]).type
         return kwargs
 
     def form_valid(self, form):
