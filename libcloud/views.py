@@ -1,5 +1,4 @@
 import mimetypes
-import mimetypes
 import os
 
 from django.conf import settings
@@ -14,8 +13,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
+from libcloud.models import Attachment
 from libcloud.models import Content, Library, ContentType, AttachmentType
 from libcloud.models import ContentTypeFeature
+from .forms import ContentForm, \
+    ContentFeatureFormset, AttachmentFormset
 from .forms import ContentTypeFeatureFormset, ContentTypeForm, AttachmentTypeForm
 from .forms import NewUserForm
 
@@ -137,8 +139,63 @@ def download_file(request, user_prefix, filename):
 
 
 @login_required
-def upload_file(request):
-    pass
+def create_content(request, content_type_pk=-1):
+    content_type_pk = int(content_type_pk)
+    if request.method == "POST":
+        # print(request.POST)
+        # print(request.FILES)
+        content_type = ContentType.objects.get(id=content_type_pk)
+        form = ContentForm(request.POST, request.FILES, prefix='content', user=request.user)
+        formset_features = ContentFeatureFormset(request.POST,
+                                                 prefix="feature")
+        formset_attachments = AttachmentFormset(request.POST, request.FILES,
+                                                prefix="attachment",
+                                                form_kwargs={'content_type': content_type})
+
+        if form.is_valid() and formset_features.is_valid() and formset_attachments.is_valid():
+            try:
+                with transaction.atomic():
+                    content = form.save(commit=True)
+                    for form1 in formset_features:
+                        if form1.instance.required or form1.cleaned_data['value'] != '':
+                            content_feature = form1.save(commit=False)
+                            content_feature.content = content
+                            content_feature.save()
+                    for form1 in formset_attachments:
+                        attachment = form1.save(commit=False)
+                        attachment.content = content
+                        attachment.save()
+                    messages.info(request, "content has been created.")
+            except Exception as e:
+                messages.error(request, e)
+                redirect("libcloud:create_content")
+            pass
+        else:
+            messages.error(request, form.errors)
+            messages.error(request, formset_features.errors)
+            messages.error(request, formset_attachments.errors)
+            # for form1 in formset_features:
+            #     print(form1)
+            #     print(form1.data)
+            redirect("libcloud:create_content")
+    if content_type_pk != -1:
+        content_type = ContentType.objects.get(id=content_type_pk)
+        form = ContentForm(prefix='content', user=request.user,
+                           initial={'type': content_type})
+        formset_features = ContentFeatureFormset(queryset=content_type.contenttypefeature_set.all(),
+                                                 prefix="feature")
+        formset_attachments = AttachmentFormset(queryset=Attachment.objects.none(),
+                                                prefix="attachment",
+                                                form_kwargs={'content_type': content_type})
+        # print(formset_features)
+        # for form1 in formset_features:
+        #     print(form1.as_table())
+        return render(request, 'libcloud/content_form.html', {
+            'form': form, 'formset_features': formset_features, 'formset_attachments': formset_attachments})
+    else:
+        form = ContentForm(prefix='content', user=request.user)
+        return render(request, 'libcloud/content_form.html', {
+            'form': form, 'formset_features': None, 'formset_attachments': None}, status=200)
 
 
 @login_required
@@ -173,6 +230,7 @@ def create_content_type(request):
         'form': form, 'formset': formset})
 
 
+@login_required
 def my_attachment_types(request):
     if request.method == "POST":
         print(request.POST)
@@ -187,7 +245,7 @@ def my_attachment_types(request):
             messages.error(request, form.errors)
     form = AttachmentTypeForm()
     return render(request, 'libcloud/attachmenttype_list.html', {
-        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)})
+        'form': form, 'attachment_types': AttachmentType.objects.filter(user=request.user)}, status=200)
 
 
 def my_content_types(request):
@@ -217,7 +275,6 @@ class EachLibraryView(DetailView):
 
 
 class LibraryCreateView(CreateView):
-
     model = Library
     fields = ['name', 'content_type']
 
@@ -249,7 +306,6 @@ class MyAttachmentTypeView(ListView):
 
 
 class AttachmentTypeCreateView(CreateView):
-
     model = AttachmentType
     fields = ['name']
 
@@ -263,7 +319,6 @@ class AttachmentTypeCreateView(CreateView):
 
 
 class ContentTypeCreateView(CreateView):
-
     model = ContentType
     fields = ['name']
 
@@ -274,7 +329,6 @@ class ContentTypeCreateView(CreateView):
 
 
 class EachContentTypeView(DetailView):
-
     model = ContentType
 
 

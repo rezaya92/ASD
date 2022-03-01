@@ -127,3 +127,10 @@ td {
 	margin-left:5px;
 }
 
+/*input[type=text] {*/
+    /*text-align:center;*/
+/*}*/
+
+.form-control[readonly]{
+  background-color: rgb(242, 242, 242) !important;
+}
