@@ -83,6 +83,10 @@ td {
     padding: 0 10px;
 }
 
+th {
+    padding: 0 10px;
+}
+
 .dropdown-menu>li
 {	position:relative;
 	-webkit-user-select: none; /* Chrome/Safari */
