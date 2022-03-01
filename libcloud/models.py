@@ -83,6 +83,11 @@ class Content(Model):
     def get_absolute_url(self):
         return reverse('libcloud:content', kwargs={'pk': self.pk})
 
+    def clean(self):
+        super().clean()
+        if self.library.content_type != self.type:
+            raise ValidationError("chosen library has a different content type")
+
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
