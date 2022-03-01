@@ -85,8 +85,9 @@ class Content(Model):
 
     def clean(self):
         super().clean()
-        if self.library is not None and self.library.content_type != self.type:
-            raise ValidationError("chosen library has a different content type")
+        if self.library is not None:
+            if self.library.content_type != self.type:
+                raise ValidationError("chosen library has a different content type")
 
 
 class ContentFeature(Model):
@@ -113,7 +114,7 @@ class Attachment(Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('libcloud:file_page', kwargs={'filename': self.content.file})
+        return reverse('libcloud:content', kwargs={'pk': self.content.pk})
 
     def filename(self):
         return os.path.basename(self.file.name)
