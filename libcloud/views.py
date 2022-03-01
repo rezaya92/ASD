@@ -276,14 +276,31 @@ class EachLibraryView(DetailView):
         return Library.objects.filter(user=self.request.user)
 
 
+class LibraryForm(forms.ModelForm):
+
+    class Meta:
+        model = Library
+        fields = ['name', 'content_type']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super(LibraryForm, self).__init__(*args, **kwargs)
+        self.fields['content_type'].queryset = ContentType.objects.filter(user=user)
+
+
 class LibraryCreateView(CreateView):
     model = Library
-    fields = ['name', 'content_type']
+    form_class = LibraryForm
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.user = self.request.user
         return super(LibraryCreateView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
 class MyContentView(ListView):
