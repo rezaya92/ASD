@@ -105,7 +105,10 @@ class ContentForm(ModelForm):
         self.fields['type'].queryset = ContentType.objects.filter(user=self.user)
         self.fields['type'].label_from_instance = lambda obj: "%s" % obj.name
 
-        self.fields['library'].queryset = Library.objects.filter(user=self.user)
+        if 'type' in self.initial:
+            self.fields['library'].queryset = self.initial['type'].library_set.all()
+        else:
+            self.fields['library'].queryset = Library.objects.filter(user=self.user)
         self.fields['library'].label_from_instance = lambda obj: "%s" % obj.name
 
     def save(self, commit=True):
@@ -125,7 +128,7 @@ class ContentFeatureForm(ModelForm):
     name = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'size': 8}))
     type = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 5}))
     required = forms.CharField(max_length=10, widget=forms.HiddenInput())
-    
+
     prefix = 'feature'
 
     def __init__(self, *args, **kwargs):
