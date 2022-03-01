@@ -338,6 +338,7 @@ class LibrarySelectForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['library'].queryset = Library.objects.filter(user=user,
                                                                  content_type=content_type)
+        self.fields['library'].label_from_instance = lambda obj: "%s" % obj.name
 
 
 class LibrarySelectView(UpdateView):

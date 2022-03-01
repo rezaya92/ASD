@@ -1,4 +1,6 @@
 {% extends 'libcloud/base.html' %}
+{% load crispy_forms_field %}
+{% load crispy_forms_tags %}
 {% block content %}
 <div class="content">
         <div class="container">
@@ -8,12 +10,11 @@
                         <div class="row">
                             <form class="justify-content-center" method="POST">
                                 {% csrf_token %}
-                                <div class="row mb-3 justify-content-center">
+                                <div class="row mb-1 justify-content-center">
                                     <div class="text-center w-25">
-                                        {{ form.as_p }}
+                                        {{ form.library|as_crispy_field }}
                                     </div>
                                 </div>
-
                                 <div class="row justify-content-center">
                                     <div class="w-25">
                                         <button type="submit" class="btn btn-block btn-primary">Select</button>
