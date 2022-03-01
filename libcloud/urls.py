@@ -23,6 +23,7 @@ urlpatterns = [
     path("my_content_types/", views.my_content_types, name="my_content_types"),
     path("my_attachment_types/", views.my_attachment_types, name="my_attachment_types"),
     path("attachment_type/create/", views.AttachmentTypeCreateView.as_view(), name="create_attachment_type"),
+    path("attachment/create/<int:content_pk>/", views.AttachmentCreateView.as_view(), name="create_attachment"),
     path("content_type/create/", views.create_content_type, name="create_content_type"),
     path("content_type/<int:pk>/", views.EachContentTypeView.as_view(), name="each_content_type"),
     # path("upload_success", views.upload_success, name="upload_success"),

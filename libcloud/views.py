@@ -6,8 +6,10 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q, Count
+from django import forms
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -336,3 +338,36 @@ class LibraryChoiceView(UpdateView):
 
     model = Content
     fields = ['library']
+
+
+class AttachmentForm(forms.ModelForm):
+
+    class Meta:
+        model = Attachment
+        fields = ['type', 'file']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super(AttachmentForm, self).__init__(*args, **kwargs)
+        self.fields['type'].queryset = AttachmentType.objects.filter(user=user)
+
+
+class AttachmentCreateView(CreateView):
+
+    model = Attachment
+    form_class = AttachmentForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        content = Content.objects.get(pk=self.kwargs['content_pk'])
+        obj.content = content
+        if obj.type not in list(obj.content.type.attachment_types.all()):
+            form.add_error('type', 'invalid attachment type')
+            return super(AttachmentCreateView, self).form_invalid(form)
+        else:
+            return super().form_valid(form)

@@ -107,11 +107,8 @@ class Attachment(Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    # def clean(self):
-    #     if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
-    #             Attachment.content_to_attachment_map[self.content.get_type_display()]:
-    #         raise ValidationError(f"{self.content.get_type_display()} " +
-    #                               f"can not have {self.get_type_display()} attachment.")
+    def get_absolute_url(self):
+        return reverse('libcloud:file_page', kwargs={'filename': self.content.file})
 
     def filename(self):
         return os.path.basename(self.file.name)
