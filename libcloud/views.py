@@ -1,6 +1,7 @@
 import mimetypes
 import os
 
+from crispy_forms.helper import FormHelper
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
@@ -368,6 +369,8 @@ class AttachmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
+        self.helper = FormHelper()
+        self.helper.form_tag = False
         super(AttachmentForm, self).__init__(*args, **kwargs)
         self.fields['type'].queryset = AttachmentType.objects.filter(user=user)
 
