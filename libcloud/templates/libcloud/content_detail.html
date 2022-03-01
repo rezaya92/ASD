@@ -13,7 +13,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-3 col-xl-2">
+                            <div class="button-box col-lg-12">
                                 <div class="file-man-box">
                                     <div class="file-img-box">
                                         {% static "" as baseUrl %}
@@ -25,6 +25,7 @@
                                     </div>
                                 </div>
                                 <input style="margin: 20px" class="btn btn-primary" type="button" onclick="location.href='/content/change_library/{{ content.id }}';" value="add to a library" />
+                                <input style="margin: 20px" class="btn btn-primary" type="button" onclick="location.href='/attachment/create/{{ content.id }}';" value="add an attachment" />
                             </div>
                         </div>
                         <div class="row">
