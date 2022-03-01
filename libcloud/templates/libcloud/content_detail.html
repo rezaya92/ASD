@@ -15,9 +15,10 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-lg-6 col-xl-6">
-                                <h4 class="header-title" style="display: inline;">Currently in Library: {% if not content.library %}
-                                    -
-                                {% endif %}</h4>
+                                <h4 class="header-title" style="display: inline;">Currently in Library:
+                                    {% if not content.library %}
+                                        -
+                                    {% endif %}</h4>
                             </div>
                         </div>
                         {% if content.library %}
@@ -34,8 +35,16 @@
                                             <h5 class="mb-0 text-overflow">{{ content.library.name }}</h5>
                                         </div>
                                     </div>
+                                    <input style="margin-left: 20px; margin-bottom: 10px" class="btn btn-primary"
+                                           type="button"
+                                           onclick="location.href='/content/change_library/{{ content.id }}';"
+                                           value="change library"/>
                                 </div>
                             </div>
+                        {% else %}
+                            <input style="margin-left: 20px; margin-bottom: 10px" class="btn btn-primary" type="button"
+                                   onclick="location.href='/content/change_library/{{ content.id }}';"
+                                   value="add to a library"/>
                         {% endif %}
                         <div class="row">
                             <div class="col-lg-6 col-xl-6">
@@ -53,8 +62,6 @@
                                         <h5 class="mb-0 text-overflow">{{ content.filename }}</h5>
                                     </div>
                                 </div>
-                                <input style="margin: 20px" class="btn btn-primary" type="button" onclick="location.href='/content/change_library/{{ content.id }}';" value="add to a library" />
-                                <input style="margin: 20px" class="btn btn-primary" type="button" onclick="location.href='/attachment/create/{{ content.id }}';" value="add an attachment" />
                             </div>
                         </div>
                         <div class="row">
@@ -102,7 +109,7 @@
                                 <h4 class="header-title m-b-30">Attachments:</h4>
                             </div>
                         </div>
-                        <div class="row ml-2">
+                        <div class="row">
                             {% for attachment in content.attachment_set.all %}
                                 <div class="file-man-box">
                                     <div class="file-img-box">
@@ -115,6 +122,11 @@
                                     </div>
                                 </div>
                             {% endfor %}
+                        </div>
+                        <div class="row">
+                            <input style="margin-left: 20px; margin-bottom: 10px; width: 20%" class="btn btn-primary"
+                                   type="button" onclick="location.href='/attachment/create/{{ content.id }}';"
+                                   value="add an attachment"/>
                         </div>
                     </div>
                 </div>
