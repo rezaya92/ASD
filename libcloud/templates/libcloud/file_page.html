@@ -12,26 +12,28 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-3 col-xl-2">
+                    <div class="col-lg-6 col-xl-6">
                         <div class="file-man-box">
                             <div class="file-img-box">
                                 {% static "" as baseUrl %}
                                 <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
                             <div class="file-man-title">
                                 <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
-                                <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
+                                <h6 class="mb-0 text-overflow">type: {{ file.type.name }}</h6>
                             </div>
                         </div>
+                    <input style="margin: 20px" class="btn btn-primary" type="button" onclick="location.href='/content/change_library/{{ file.id }}';" value="add to a library" />
                     </div>
                 </div>
+
                 <div class="row">
                     <div class="col-lg-6 col-xl-6">
                         <h4 class="header-title m-b-30">attachments:</h4>
                     </div>
                 </div>
-                {% for attachment in file.attachment_set.all %}
+
                     <div class="row">
-                        <div class="col-lg-3 col-xl-2">
+                        {% for attachment in file.attachment_set.all %}
                             <div class="file-man-box">
                                 <div class="file-img-box">
                                     {% static "" as baseUrl %}
@@ -39,13 +41,13 @@
 
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ attachment.filename }}</h5>
-                                    <h6 class="mb-0 text-overflow">{{ attachment.get_type_display }}</h6>
+                                    <h6 class="mb-0 text-overflow">type: {{ attachment.type.name }}</h6>
 
                                 </div>
                             </div>
-                        </div>
+                       {% endfor %}
                     </div>
-                {% endfor %}
+
             </div>
         </div>
     </div>
