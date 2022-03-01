@@ -85,7 +85,7 @@ class Content(Model):
 
     def clean(self):
         super().clean()
-        if self.library.content_type != self.type:
+        if self.library is not None and self.library.content_type != self.type:
             raise ValidationError("chosen library has a different content type")
 
 

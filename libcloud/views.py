@@ -327,10 +327,33 @@ class EachContentTypeView(DetailView):
     model = ContentType
 
 
-class LibraryChoiceView(UpdateView):
+class LibrarySelectForm(forms.ModelForm):
+    class Meta:
+        model = Content
+        fields = ['library']
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['library'].queryset = Library.objects.filter(user=user)
+
+
+class LibrarySelectView(UpdateView):
+    form_class = LibrarySelectForm
     model = Content
-    fields = ['library']
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        content = form.save(commit=False)
+        if content.library is not None and content.library not in list(content.creator.library_set.all()):
+            form.add_error('library', 'invalid library')
+            return super().form_invalid(form)
+        else:
+            return super().form_valid(form)
 
 
 class AttachmentForm(forms.ModelForm):
