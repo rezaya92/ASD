@@ -55,7 +55,7 @@
                                     <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
-                                    <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
+                                    <h6 class="mb-0 text-overflow">Type: {{ file.type.name }}</h6>
                                 </div>
                                 </a>
                             </div>
@@ -77,7 +77,7 @@
                                     <a href={{ lib.get_absolute_url}}></a>
                                 <div class="file-man-title">
                                     <h5 class="mb-0 text-overflow">{{ lib.name }}</h5>
-                                    <h6 class="mb-0 text-overflow"> {{ lib.content_type.name }}</h6>
+                                    <h6 class="mb-0 text-overflow">Type: {{ lib.content_type.name }}</h6>
                                 </div>
 
                                 </a>

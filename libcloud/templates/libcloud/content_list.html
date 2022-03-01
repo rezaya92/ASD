@@ -3,7 +3,7 @@
 {% block content %}
     <div style="height:10vh"></div>
     <div class="card-box">
-        <div style="text-align: center;" class="row">
+        <div class="row">
             {% for file in object_list %}
                 <div class="file-man-box">
                     <a href="/content/{{ file.id }}">
@@ -12,7 +12,7 @@
                         <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>
                     <div class="file-man-title">
                         <h5 class="mb-0 text-overflow">{{ file.filename }}</h5>
-                        <h6 class="mb-0 text-overflow"> {{ file.get_type_display }}</h6>
+                        <h6 class="mb-0 text-overflow"> Type: {{ file.type.name }}</h6>
                     </div>
                     </a>
                 </div>
