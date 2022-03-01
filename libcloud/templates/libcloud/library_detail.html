@@ -5,6 +5,7 @@
     <div class="card-box">
         <div style="text-align: center;" class="row">
         <h1> {{ library.name }} </h1>
+        <h1> {{ library.content_type.name }} </h1>
             {% for content in library.content_set.all %}
 
                 <div class="file-man-box">
