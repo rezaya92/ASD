@@ -249,14 +249,14 @@ class DownloadFileTest(TestCase):
 
 
 @override_settings(MEDIA_ROOT=test_media_root)
-class FilePageTest(TestCase):
+class ContentPageTest(TestCase):
     def setUp(self):
         self.user = User.objects.create(email='testemail@gmail.com', username='username', password='123')
         self.content_type = ContentType.objects.create(user=self.user, name='type1')
         self.content = Content.objects.create(creator=self.user, type=self.content_type,
                                               file=SimpleUploadedFile('temp.txt', b"Test File"))
 
-        self.file_page_url = '/file_page'
+        self.content_page_url = '/content'
         super().setUp()
 
     def tearDown(self):
@@ -264,9 +264,9 @@ class FilePageTest(TestCase):
             shutil.rmtree(test_media_root)
         super().tearDown()
 
-    def test_file_page_success(self):
+    def test_content_page_success(self):
         # print(f"{self.file_page_url}/{self.content.file.name}")
-        response = self.client.get(f"{self.file_page_url}/{self.content.file.name}")
+        response = self.client.get(f"{self.content_page_url}/{self.content.id}")
         self.assertEqual(response.status_code, 200)
 
     # TODO

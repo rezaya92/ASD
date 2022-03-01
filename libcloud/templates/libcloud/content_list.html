@@ -6,7 +6,7 @@
         <div style="text-align: center;" class="row">
             {% for file in object_list %}
                 <div class="file-man-box">
-                    <a href="/file_page/user_{{ file.creator }}/{{ file.filename }}">
+                    <a href="/content/{{ file.id }}">
                     <div class="file-img-box">
                         {% static "" as baseUrl %}
                         <img src="{{ baseUrl }}images/file.png" alt="icon"></div><a href={{ file.file.url }}><i class="fa fa-download"></i></a>

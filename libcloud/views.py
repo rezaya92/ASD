@@ -94,32 +94,8 @@ def login_request(request):
     return render(request=request, template_name="libcloud/login.html", context={"login_form": form})
 
 
-def file_page(request, filename):
-    if request.method == "GET":
-        contents = Content.objects.filter(file=filename).all()
-        # for c in contents:
-        #     print(c.file.name)
-        # print(len(contents))
-        content = None
-        if contents.count() == 1:
-            content = contents[0]
-        elif contents.count() == 0:
-            # if len(filename.split("/")) > 1:
-            #     filename = filename.split("/")[-1]
-            # content = Content.objects.create(creator=request.user, type=Content.ContentType.Text,
-            #                                  file=SimpleUploadedFile(filename, b"Test File"))
-            # content.contentfeature_set.create(name="feature1", value="value1")
-            # content.attachment_set.create(type=Attachment.AttachmentType.Subtitle,
-            #                               file=SimpleUploadedFile("attachment1.txt", b"Test attachment"))
-            # return redirect(f"/file_page/{content.file.name}")
-            messages.info(request, f"{filename} doesn't exists.")
-            return redirect("/")
-        else:
-            messages.error(request, "internal error")
-            return redirect("/")
-        return render(request, 'libcloud/file_page.html', {'file': content})
-    else:
-        return redirect('libcloud:file_page', filename)
+class ContentView(DetailView):
+    model = Content
 
 
 def download_file(request, user_prefix, filename):
