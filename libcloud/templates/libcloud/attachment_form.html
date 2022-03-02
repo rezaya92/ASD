@@ -2,22 +2,18 @@
 {% load crispy_forms_field %}
 {% load crispy_forms_tags %}
 {% block content %}
-<div class="content">
+    <div class="content">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="w-75">
                     <div class="card-box">
-                        <div class="row">
-                            <form class="justify-content-center" method="POST">
+                        <div class="row justify-content-center">
+                            <form class="text-center w-50" method="post" enctype="multipart/form-data">
                                 {% csrf_token %}
-                                <div class="row mb-1 justify-content-center">
-                                    <div class="text-center w-25">
-                                        {{ form.library|as_crispy_field }}
-                                    </div>
-                                </div>
+                                {% crispy form %}
                                 <div class="row justify-content-center">
-                                    <div class="w-25">
-                                        <button type="submit" class="btn btn-block btn-primary">Select</button>
+                                    <div class="w-50">
+                                        <button type="submit" class="btn btn-block btn-primary">Add</button>
                                     </div>
                                 </div>
                             </form>

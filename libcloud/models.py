@@ -43,7 +43,7 @@ class ContentType(Model):
 
 class ContentTypeFeature(Model):
     class FeatureType(models.IntegerChoices):
-        number = 1
+        Number = 1
         String = 2
         Boolean = 3
         # TODO
@@ -71,7 +71,7 @@ class Content(Model):
     creator = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user))
     type = models.ForeignKey(to=ContentType, on_delete=models.CASCADE)
     file = models.FileField(upload_to=get_content_upload_path)
-    library = models.ForeignKey(to=Library, on_delete=models.CASCADE, null=True, blank=True)
+    library = models.ForeignKey(to=Library, on_delete=models.SET_NULL, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -81,12 +81,18 @@ class Content(Model):
         return os.path.basename(self.file.name)
 
     def get_absolute_url(self):
-        return reverse('libcloud:file_page', kwargs={'filename': self.file})
+        return reverse('libcloud:content', kwargs={'pk': self.pk})
+
+    def clean(self):
+        super().clean()
+        if self.library is not None:
+            if self.library.content_type != self.type:
+                raise ValidationError("chosen library has a different content type")
 
 
 class ContentFeature(Model):
     content = models.ForeignKey(Content, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
+    feature_type = models.ForeignKey(ContentTypeFeature, on_delete=models.CASCADE, null=True)
     value = models.CharField(max_length=100)
 
     def save(self, *args, **kwargs):
@@ -107,11 +113,8 @@ class Attachment(Model):
         self.full_clean()
         super().save(*args, **kwargs)
 
-    # def clean(self):
-    #     if self.content.get_type_display() not in Attachment.content_to_attachment_map or self.get_type_display() not in \
-    #             Attachment.content_to_attachment_map[self.content.get_type_display()]:
-    #         raise ValidationError(f"{self.content.get_type_display()} " +
-    #                               f"can not have {self.get_type_display()} attachment.")
+    def get_absolute_url(self):
+        return reverse('libcloud:content', kwargs={'pk': self.content.pk})
 
     def filename(self):
         return os.path.basename(self.file.name)

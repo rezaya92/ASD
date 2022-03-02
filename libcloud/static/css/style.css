@@ -83,6 +83,10 @@ td {
     padding: 0 10px;
 }
 
+th {
+    padding: 0 10px;
+}
+
 .dropdown-menu>li
 {	position:relative;
 	-webkit-user-select: none; /* Chrome/Safari */
@@ -127,3 +131,10 @@ td {
 	margin-left:5px;
 }
 
+/*input[type=text] {*/
+    /*text-align:center;*/
+/*}*/
+
+.form-control[readonly]{
+  background-color: rgb(242, 242, 242) !important;
+}
